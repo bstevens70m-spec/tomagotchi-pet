@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { loadSave, saveState, applyOfflineDecay, formatDuration, TICK_MS } from "./persistence";
+import {
+  loadSave,
+  saveState,
+  applyOfflineDecay,
+  formatDuration,
+  TICK_MS,
+  SLEEP_TICK_MS,
+  SLEEP_ENERGY_PER_MIN,
+  SLEEP_HUNGER_PER_MIN,
+  SLEEP_JOY_PER_MIN,
+} from "./persistence";
 import catNeutral from "./assets/cat-neutral.png";
 import catHappy from "./assets/cat-happy.png";
 import catSad from "./assets/cat-sad.png";
@@ -201,7 +211,7 @@ function getInitialState() {
 
   const result = applyOfflineDecay(saved);
   let log = saved.log || fresh.log;
-  if (result.ticksPassed > 0) {
+  if (result.ticksPassed > 0 || result.elapsedMs >= 10 * 60 * 1000) {
     const away = formatDuration(result.elapsedMs);
     log = result.wokeUp
       ? `Welcome back! You were away ${away} — your creature woke up partway through.`
@@ -253,27 +263,34 @@ export default function TamagotchiApp() {
     };
   }, [stats, age, asleep, mess, log]);
 
-  // main decay loop — one tick roughly = one in-game day
+  // main decay loop — one tick roughly = one in-game day.
+  // Awake decay only; sleep recovery runs on its own faster loop below.
   useEffect(() => {
     tickRef.current = setInterval(() => {
       setAge((a) => a + 1);
-      setStats((s) => {
-        if (asleep) {
-          return {
-            hunger: clamp(s.hunger - 1),
-            energy: clamp(s.energy + 6),
-            joy: clamp(s.joy - 0.5),
-          };
-        }
-        return {
+      if (!asleep) {
+        setStats((s) => ({
           hunger: clamp(s.hunger - 3),
           energy: clamp(s.energy - 2),
           joy: clamp(s.joy - 2),
-        };
-      });
-      if (!asleep && Math.random() < 0.12) setMess(true);
+        }));
+        if (Math.random() < 0.12) setMess(true);
+      }
     }, TICK_MS);
     return () => clearInterval(tickRef.current);
+  }, [asleep]);
+
+  // sleep loop — a nap recovers energy by the minute (~40 min from empty)
+  useEffect(() => {
+    if (!asleep) return;
+    const t = setInterval(() => {
+      setStats((s) => ({
+        hunger: clamp(s.hunger - SLEEP_HUNGER_PER_MIN),
+        energy: clamp(s.energy + SLEEP_ENERGY_PER_MIN),
+        joy: clamp(s.joy - SLEEP_JOY_PER_MIN),
+      }));
+    }, SLEEP_TICK_MS);
+    return () => clearInterval(t);
   }, [asleep]);
 
   // cooldown ticker

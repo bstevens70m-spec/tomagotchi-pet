@@ -8,6 +8,14 @@ export const STORAGE_KEY = "tomagotchi-save-v1";
 // if the pet is left alone, so it wants attention a few times a day.
 export const TICK_MS = 30 * 60 * 1000;
 
+// Sleep runs on its own faster clock so a nap takes ~40 real minutes
+// instead of hours: energy recovers per minute, with a small hunger/joy
+// cost. Must match the live sleep loop and the offline math below.
+export const SLEEP_TICK_MS = 60 * 1000;
+export const SLEEP_ENERGY_PER_MIN = 2.5;
+export const SLEEP_HUNGER_PER_MIN = 0.05;
+export const SLEEP_JOY_PER_MIN = 0.025;
+
 function clamp(n, lo = 0, hi = 100) {
   return Math.max(lo, Math.min(hi, n));
 }
@@ -50,7 +58,6 @@ export function saveState({ stats, age, asleep, mess, log }) {
 // gives the same result.
 export function applyOfflineDecay(saved, nowMs = Date.now()) {
   const elapsedMs = Math.max(0, nowMs - saved.lastUpdated);
-  const ticks = Math.floor(elapsedMs / TICK_MS);
 
   let { hunger, energy, joy } = saved.stats;
   let age = saved.age;
@@ -59,42 +66,35 @@ export function applyOfflineDecay(saved, nowMs = Date.now()) {
   let wokeUp = false;
   let awakeTicks = 0;
 
-  if (ticks > 0) {
-    if (!asleep) {
-      hunger = clamp(hunger - 3 * ticks);
-      energy = clamp(energy - 2 * ticks);
-      joy = clamp(joy - 2 * ticks);
-      age = age + ticks;
-      awakeTicks = ticks;
-    } else {
-      const ticksToFull = energy >= 100 ? 0 : Math.ceil((100 - energy) / 6);
-      if (ticks < ticksToFull) {
-        // Slept the entire time away.
-        energy = clamp(energy + 6 * ticks);
-        hunger = clamp(hunger - 1 * ticks);
-        joy = clamp(joy - 0.5 * ticks);
-        age = age + ticks;
-      } else {
-        // Finished sleeping partway through, then drifted awake for the rest.
-        const remaining = ticks - ticksToFull;
-        energy = clamp(energy + 6 * ticksToFull);
-        hunger = clamp(hunger - 1 * ticksToFull);
-        joy = clamp(joy - 0.5 * ticksToFull);
-        age = age + ticksToFull;
+  // Age tracks real time regardless of sleeping.
+  age = age + Math.floor(elapsedMs / TICK_MS);
 
-        hunger = clamp(hunger - 3 * remaining);
-        energy = clamp(energy - 2 * remaining);
-        joy = clamp(joy - 2 * remaining);
-        age = age + remaining;
+  if (asleep) {
+    const minutesElapsed = Math.floor(elapsedMs / SLEEP_TICK_MS);
+    const minutesToFull =
+      energy >= 100 ? 0 : Math.ceil((100 - energy) / SLEEP_ENERGY_PER_MIN);
+    const slept = Math.min(minutesElapsed, minutesToFull);
 
-        asleep = false;
-        wokeUp = true;
-        awakeTicks = remaining;
-      }
+    energy = clamp(energy + SLEEP_ENERGY_PER_MIN * slept);
+    hunger = clamp(hunger - SLEEP_HUNGER_PER_MIN * slept);
+    joy = clamp(joy - SLEEP_JOY_PER_MIN * slept);
+
+    if (minutesElapsed >= minutesToFull) {
+      // Woke up partway through the absence; awake decay for the rest.
+      asleep = false;
+      wokeUp = true;
+      const awakeMs = elapsedMs - minutesToFull * SLEEP_TICK_MS;
+      awakeTicks = Math.floor(awakeMs / TICK_MS);
     }
+  } else {
+    awakeTicks = Math.floor(elapsedMs / TICK_MS);
   }
 
   if (awakeTicks > 0) {
+    hunger = clamp(hunger - 3 * awakeTicks);
+    energy = clamp(energy - 2 * awakeTicks);
+    joy = clamp(joy - 2 * awakeTicks);
+
     const probAtLeastOneMess = 1 - Math.pow(0.88, awakeTicks);
     if (Math.random() < probAtLeastOneMess) mess = true;
   }
@@ -104,7 +104,7 @@ export function applyOfflineDecay(saved, nowMs = Date.now()) {
     age,
     asleep,
     mess,
-    ticksPassed: ticks,
+    ticksPassed: Math.floor(elapsedMs / TICK_MS),
     elapsedMs,
     wokeUp,
   };
