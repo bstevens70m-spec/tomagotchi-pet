@@ -24,5 +24,6 @@ Then open the URL it prints (usually `http://localhost:5173`).
 
 ## Deploying
 
-This is a static Vite app, so it deploys cleanly to Vercel — see the setup
-notes shared alongside this project for a step-by-step walkthrough.
+This is a static Vite app, so it deploys cleanly to Vercel. Vercel is
+connected to this repo and deploys the `main` branch automatically on
+every push.
