@@ -1,5 +1,22 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { loadSave, saveState, applyOfflineDecay, formatDuration, TICK_MS } from "./persistence";
+import catNeutral from "./assets/cat-neutral.png";
+import catHappy from "./assets/cat-happy.png";
+import catSad from "./assets/cat-sad.png";
+import catSick from "./assets/cat-sick.png";
+import catAsleep from "./assets/cat-asleep.png";
+
+const CAT_SPRITES = {
+  neutral: catNeutral,
+  happy: catHappy,
+  sad: catSad,
+  sick: catSick,
+  asleep: catAsleep,
+};
+
+// All five sprites share the same 400x323 frame, so swapping moods
+// never shifts the cat's position.
+const SPRITE_ASPECT = 323 / 400;
 
 // ---------- palette ----------
 const COLORS = {
@@ -41,89 +58,35 @@ function getMood(stats, asleep) {
   return "sad";
 }
 
-// ---------- creature face (SVG) ----------
+// ---------- creature (pixel-art cat sprites) ----------
 function Creature({ mood, stage, bump }) {
-  const bodyColor = COLORS.clay;
-  const bodyDark = COLORS.clayDark;
-  const scale = stage.size;
-
-  let eyes, mouth;
-  switch (mood) {
-    case "asleep":
-      eyes = (
-        <>
-          <path d="M -18 -6 Q -12 -1 -6 -6" stroke={COLORS.charcoal} strokeWidth="3" fill="none" strokeLinecap="round" />
-          <path d="M 6 -6 Q 12 -1 18 -6" stroke={COLORS.charcoal} strokeWidth="3" fill="none" strokeLinecap="round" />
-        </>
-      );
-      mouth = <ellipse cx="0" cy="14" rx="5" ry="3" fill={COLORS.charcoal} />;
-      break;
-    case "happy":
-      eyes = (
-        <>
-          <circle cx="-13" cy="-6" r="3.4" fill={COLORS.charcoal} />
-          <circle cx="13" cy="-6" r="3.4" fill={COLORS.charcoal} />
-        </>
-      );
-      mouth = <path d="M -13 10 Q 0 22 13 10" stroke={COLORS.charcoal} strokeWidth="3.2" fill="none" strokeLinecap="round" />;
-      break;
-    case "sick":
-      eyes = (
-        <>
-          <path d="M -17 -9 L -7 -3" stroke={COLORS.charcoal} strokeWidth="3" strokeLinecap="round" />
-          <path d="M -17 -3 L -7 -9" stroke={COLORS.charcoal} strokeWidth="3" strokeLinecap="round" />
-          <path d="M 7 -9 L 17 -3" stroke={COLORS.charcoal} strokeWidth="3" strokeLinecap="round" />
-          <path d="M 7 -3 L 17 -9" stroke={COLORS.charcoal} strokeWidth="3" strokeLinecap="round" />
-        </>
-      );
-      mouth = <path d="M -10 16 Q 0 9 10 16" stroke={COLORS.charcoal} strokeWidth="3" fill="none" strokeLinecap="round" />;
-      break;
-    case "sad":
-      eyes = (
-        <>
-          <circle cx="-13" cy="-4" r="3" fill={COLORS.charcoal} />
-          <circle cx="13" cy="-4" r="3" fill={COLORS.charcoal} />
-        </>
-      );
-      mouth = <path d="M -11 18 Q 0 9 11 18" stroke={COLORS.charcoal} strokeWidth="3" fill="none" strokeLinecap="round" />;
-      break;
-    default:
-      eyes = (
-        <>
-          <circle cx="-13" cy="-5" r="3" fill={COLORS.charcoal} />
-          <circle cx="13" cy="-5" r="3" fill={COLORS.charcoal} />
-        </>
-      );
-      mouth = <path d="M -10 12 Q 0 17 10 12" stroke={COLORS.charcoal} strokeWidth="3" fill="none" strokeLinecap="round" />;
-  }
+  const src = CAT_SPRITES[mood] ?? CAT_SPRITES.neutral;
+  const w = 185 * stage.size;
+  const h = w * SPRITE_ASPECT;
 
   return (
     <g
-      transform={`translate(140 165) scale(${scale}) ${bump ? "translate(0,-6)" : ""}`}
+      transform={bump ? "translate(0,-6)" : undefined}
       style={{ transition: "transform 220ms ease" }}
     >
-      {/* ears / sprout bumps for later stages */}
-      {stage.name !== "hatchling" && (
-        <>
-          <ellipse cx="-30" cy="-46" rx="8" ry="12" fill={bodyColor} />
-          <ellipse cx="30" cy="-46" rx="8" ry="12" fill={bodyColor} />
-        </>
-      )}
-      {/* body */}
-      <ellipse cx="0" cy="6" rx="52" ry="46" fill={bodyColor} stroke={bodyDark} strokeWidth="2.5" />
-      {/* belly patch */}
-      <ellipse cx="0" cy="20" rx="30" ry="20" fill={COLORS.cream} opacity="0.55" />
-      {/* cheeks */}
-      {mood === "happy" && (
-        <>
-          <circle cx="-24" cy="6" r="6" fill={COLORS.clayDark} opacity="0.35" />
-          <circle cx="24" cy="6" r="6" fill={COLORS.clayDark} opacity="0.35" />
-        </>
-      )}
-      {eyes}
-      {mouth}
+      <image
+        href={src}
+        x={140 - w / 2}
+        y={232 - h}
+        width={w}
+        height={h}
+        style={{ imageRendering: "pixelated" }}
+      />
       {mood === "asleep" && (
-        <text x="30" y="-30" fontSize="16" fill={COLORS.walnutLight} fontFamily="Georgia, serif">z</text>
+        <text
+          x={140 + w / 2}
+          y={232 - h}
+          fontSize="16"
+          fill={COLORS.walnutLight}
+          fontFamily="Georgia, serif"
+        >
+          z
+        </text>
       )}
     </g>
   );
