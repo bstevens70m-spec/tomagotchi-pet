@@ -95,7 +95,7 @@ function getMood(stats, asleep) {
 // ---------- creature (pixel-art cat sprites) ----------
 function Creature({ mood, stage, bump }) {
   const src = CAT_SPRITES[mood] ?? CAT_SPRITES.neutral;
-  const w = 185 * stage.size;
+  const w = 150 * stage.size;
   const h = w * SPRITE_ASPECT;
 
   return (
