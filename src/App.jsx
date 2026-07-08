@@ -16,6 +16,10 @@ import catHappy from "./assets/cat-happy.png";
 import catSad from "./assets/cat-sad.png";
 import catSick from "./assets/cat-sick.png";
 import catAsleep from "./assets/cat-asleep.png";
+import roomMorning from "./assets/room-morning.png";
+import roomDay from "./assets/room-day.png";
+import roomEvening from "./assets/room-evening.png";
+import roomNight from "./assets/room-night.png";
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -24,6 +28,22 @@ const CAT_SPRITES = {
   sick: catSick,
   asleep: catAsleep,
 };
+
+// The room follows the player's real clock.
+const ROOM_BACKGROUNDS = {
+  morning: roomMorning,
+  day: roomDay,
+  evening: roomEvening,
+  night: roomNight,
+};
+
+function getTimeOfDay(date = new Date()) {
+  const h = date.getHours();
+  if (h >= 6 && h < 11) return "morning";
+  if (h >= 11 && h < 17) return "day";
+  if (h >= 17 && h < 21) return "evening";
+  return "night";
+}
 
 // All five sprites share the same 400x323 frame, so swapping moods
 // never shifts the cat's position.
@@ -241,7 +261,14 @@ export default function TamagotchiApp() {
   const [log, setLog] = useState(initial.log);
   const [mess, setMess] = useState(initial.mess);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
   const tickRef = useRef(null);
+
+  // swap the room's lighting when the player's clock crosses a boundary
+  useEffect(() => {
+    const t = setInterval(() => setTimeOfDay(getTimeOfDay()), 60 * 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const stage = getStage(age);
   const mood = getMood(stats, asleep);
@@ -411,7 +438,8 @@ export default function TamagotchiApp() {
           style={{
             position: "relative",
             borderRadius: 10,
-            background: `repeating-linear-gradient(100deg, ${COLORS.cream}, ${COLORS.cream} 18px, ${COLORS.creamDark} 18px, ${COLORS.creamDark} 20px)`,
+            overflow: "hidden",
+            background: COLORS.creamDark,
             border: `6px solid ${COLORS.brass}`,
             boxShadow: "inset 0 0 24px rgba(0,0,0,0.15)",
           }}
@@ -439,8 +467,15 @@ export default function TamagotchiApp() {
           })}
 
           <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
-            {/* floor line */}
-            <line x1="20" y1="230" x2="260" y2="230" stroke={COLORS.sageDark} strokeWidth="2" opacity="0.35" />
+            {/* the room, lit for the player's time of day */}
+            <image
+              href={ROOM_BACKGROUNDS[timeOfDay]}
+              x="0"
+              y="0"
+              width="280"
+              height="280"
+              style={{ imageRendering: "pixelated" }}
+            />
             {mess && (
               <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.sageDark} opacity="0.55" />
             )}
