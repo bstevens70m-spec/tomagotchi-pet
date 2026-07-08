@@ -50,18 +50,18 @@ function getTimeOfDay(date = new Date()) {
 const SPRITE_ASPECT = 323 / 400;
 
 // ---------- palette ----------
+// Soft Navy / Lime Signal / Calm Mint / Cool Charcoal / Off White
 const COLORS = {
-  cream: "#F2ECE0",
-  creamDark: "#E7DFCE",
-  walnut: "#4A3728",
-  walnutLight: "#6B5240",
-  clay: "#C17A56",
-  clayDark: "#8F5638",
-  sage: "#8A9A7E",
-  sageDark: "#5F6E54",
-  charcoal: "#33302B",
-  brass: "#B08D4F",
-  brassLight: "#D4B677",
+  navy: "#1F2A44", // frame, buttons
+  navyLight: "#31436B", // frame gradient top
+  lime: "#E1FF7C", // signal accent: rivets, cooldowns, mid gauges
+  mint: "#4AD1B0", // window bezel, healthy gauges
+  mintDark: "#2E9B80",
+  charcoal: "#2E2E2E", // borders, button shadows
+  offWhite: "#DBDBDB", // cards, light text
+  offWhiteDark: "#C4C4C4", // window fallback, gauge tracks
+  inkSoft: "#4A5568", // secondary text on light cards
+  alert: "#B0473F", // low-stat warning (kept from the old palette)
 };
 
 // At 30 real minutes per in-game day, 48 in-game days pass per real day:
@@ -116,7 +116,7 @@ function Creature({ mood, stage, bump }) {
           x={140 + w / 2}
           y={232 - h}
           fontSize="16"
-          fill={COLORS.walnutLight}
+          fill={COLORS.offWhite}
           fontFamily="Georgia, serif"
         >
           z
@@ -129,7 +129,7 @@ function Creature({ mood, stage, bump }) {
 // ---------- stat gauge ----------
 function Gauge({ label, value, icon }) {
   const pct = clamp(value);
-  const color = pct < 25 ? "#B0473F" : pct < 55 ? COLORS.brass : COLORS.sageDark;
+  const color = pct < 25 ? COLORS.alert : pct < 55 ? COLORS.lime : COLORS.mint;
   return (
     <div style={{ marginBottom: 10 }}>
       <div
@@ -139,7 +139,7 @@ function Gauge({ label, value, icon }) {
           fontSize: 11,
           letterSpacing: "0.04em",
           textTransform: "uppercase",
-          color: COLORS.walnutLight,
+          color: COLORS.inkSoft,
           marginBottom: 4,
           fontFamily: "'Trebuchet MS', sans-serif",
         }}
@@ -151,8 +151,8 @@ function Gauge({ label, value, icon }) {
         style={{
           height: 8,
           borderRadius: 4,
-          background: "#DDD3BE",
-          border: `1px solid ${COLORS.walnutLight}55`,
+          background: COLORS.offWhiteDark,
+          border: `1px solid ${COLORS.inkSoft}55`,
           overflow: "hidden",
         }}
       >
@@ -183,8 +183,8 @@ function ActionButton({ label, onClick, disabled, cooldownPct }) {
         fontSize: 13,
         fontFamily: "'Trebuchet MS', sans-serif",
         letterSpacing: "0.02em",
-        color: disabled ? "#A99C87" : COLORS.cream,
-        background: disabled ? "#B7AA92" : COLORS.walnut,
+        color: disabled ? "#7A8290" : COLORS.offWhite,
+        background: disabled ? "#9FA6B2" : COLORS.navyLight,
         border: `1px solid ${COLORS.charcoal}`,
         borderRadius: 6,
         cursor: disabled ? "default" : "pointer",
@@ -211,7 +211,7 @@ function ActionButton({ label, onClick, disabled, cooldownPct }) {
             bottom: 0,
             height: 3,
             width: `${cooldownPct}%`,
-            background: COLORS.clay,
+            background: COLORS.lime,
           }}
         />
       )}
@@ -407,16 +407,16 @@ export default function TamagotchiApp() {
         maxWidth: 380,
         margin: "0 auto",
         fontFamily: "'Trebuchet MS', sans-serif",
-        color: COLORS.walnut,
+        color: COLORS.charcoal,
       }}
     >
-      {/* wooden shadow-box frame */}
+      {/* navy shadow-box frame */}
       <div
         style={{
-          background: `linear-gradient(180deg, ${COLORS.walnutLight}, ${COLORS.walnut})`,
+          background: `linear-gradient(180deg, ${COLORS.navyLight}, ${COLORS.navy})`,
           borderRadius: 18,
           padding: 14,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
+          boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
         }}
       >
         <div
@@ -424,7 +424,7 @@ export default function TamagotchiApp() {
             fontFamily: "Georgia, 'Iowan Old Style', serif",
             fontSize: 15,
             letterSpacing: "0.03em",
-            color: COLORS.cream,
+            color: COLORS.offWhite,
             textAlign: "center",
             marginBottom: 10,
             opacity: 0.9,
@@ -439,8 +439,8 @@ export default function TamagotchiApp() {
             position: "relative",
             borderRadius: 10,
             overflow: "hidden",
-            background: COLORS.creamDark,
-            border: `6px solid ${COLORS.brass}`,
+            background: COLORS.offWhiteDark,
+            border: `6px solid ${COLORS.mint}`,
             boxShadow: "inset 0 0 24px rgba(0,0,0,0.15)",
           }}
         >
@@ -454,7 +454,7 @@ export default function TamagotchiApp() {
                   position: "absolute",
                   width: 10,
                   height: 10,
-                  background: COLORS.brassLight,
+                  background: COLORS.lime,
                   borderRadius: "50%",
                   top: y === "0" ? 6 : undefined,
                   bottom: y === "1" ? 6 : undefined,
@@ -477,7 +477,7 @@ export default function TamagotchiApp() {
               style={{ imageRendering: "pixelated" }}
             />
             {mess && (
-              <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.sageDark} opacity="0.55" />
+              <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.charcoal} opacity="0.5" />
             )}
             <Creature mood={mood} stage={stage} bump={bump} />
           </svg>
@@ -486,7 +486,7 @@ export default function TamagotchiApp() {
         <div
           style={{
             textAlign: "center",
-            color: COLORS.cream,
+            color: COLORS.offWhite,
             fontSize: 12,
             marginTop: 8,
             marginBottom: 12,
@@ -499,10 +499,10 @@ export default function TamagotchiApp() {
           {mess ? " · needs tidying" : ""}
         </div>
 
-        {/* gauges on a cream card */}
+        {/* gauges on an off-white card */}
         <div
           style={{
-            background: COLORS.cream,
+            background: COLORS.offWhite,
             borderRadius: 10,
             padding: "12px 14px 6px",
           }}
@@ -525,7 +525,8 @@ export default function TamagotchiApp() {
         style={{
           textAlign: "center",
           fontSize: 11,
-          color: COLORS.walnutLight,
+          color: COLORS.offWhite,
+          opacity: 0.65,
           marginTop: 10,
         }}
       >
@@ -541,10 +542,10 @@ export default function TamagotchiApp() {
             padding: "4px 8px",
             fontSize: 11,
             fontFamily: "'Trebuchet MS', sans-serif",
-            color: confirmReset ? "#B0473F" : COLORS.walnutLight,
+            color: confirmReset ? "#E0685E" : COLORS.offWhite,
             textDecoration: "underline",
             cursor: "pointer",
-            opacity: confirmReset ? 1 : 0.7,
+            opacity: confirmReset ? 1 : 0.55,
           }}
         >
           {confirmReset
