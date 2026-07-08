@@ -20,6 +20,14 @@ function clamp(n, lo = 0, hi = 100) {
   return Math.max(lo, Math.min(hi, n));
 }
 
+export function clearSave() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore — same storage caveats as saveState
+  }
+}
+
 export function loadSave() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

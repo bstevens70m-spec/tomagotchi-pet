@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   loadSave,
   saveState,
+  clearSave,
   applyOfflineDecay,
   formatDuration,
   TICK_MS,
@@ -236,6 +237,7 @@ export default function TamagotchiApp() {
   const [cooldowns, setCooldowns] = useState({ feed: 0, play: 0, clean: 0 });
   const [log, setLog] = useState(initial.log);
   const [mess, setMess] = useState(initial.mess);
+  const [confirmReset, setConfirmReset] = useState(false);
   const tickRef = useRef(null);
 
   const stage = getStage(age);
@@ -341,6 +343,23 @@ export default function TamagotchiApp() {
     setStats((s) => ({ ...s, joy: clamp(s.joy + 6) }));
     setCooldowns((c) => ({ ...c, clean: 100 }));
     setLog("Tidied up the little corner.");
+  }
+
+  function startOver() {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      // back out automatically if they don't confirm within a few seconds
+      setTimeout(() => setConfirmReset(false), 4000);
+      return;
+    }
+    clearSave();
+    setStats({ hunger: 80, energy: 80, joy: 80 });
+    setAge(0);
+    setAsleep(false);
+    setMess(false);
+    setCooldowns({ feed: 0, play: 0, clean: 0 });
+    setLog("A brand-new creature blinks awake for the first time.");
+    setConfirmReset(false);
   }
 
   const moodLabel = {
@@ -473,6 +492,27 @@ export default function TamagotchiApp() {
         }}
       >
         stats drift on their own — check back in and keep them balanced.
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: 6 }}>
+        <button
+          onClick={startOver}
+          style={{
+            background: "none",
+            border: "none",
+            padding: "4px 8px",
+            fontSize: 11,
+            fontFamily: "'Trebuchet MS', sans-serif",
+            color: confirmReset ? "#B0473F" : COLORS.walnutLight,
+            textDecoration: "underline",
+            cursor: "pointer",
+            opacity: confirmReset ? 1 : 0.7,
+          }}
+        >
+          {confirmReset
+            ? "really start over? your creature will be gone — click again to confirm"
+            : "start over"}
+        </button>
       </div>
     </div>
   );
