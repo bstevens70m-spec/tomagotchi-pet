@@ -117,7 +117,7 @@ function Creature({ mood, stage, bump }) {
           y={232 - h}
           fontSize="16"
           fill={COLORS.offWhite}
-          fontFamily="Georgia, serif"
+          fontFamily="'Pixelify Sans', Georgia, serif"
         >
           z
         </text>
@@ -141,7 +141,7 @@ function Gauge({ label, value, icon }) {
           textTransform: "uppercase",
           color: COLORS.inkSoft,
           marginBottom: 4,
-          fontFamily: "'Trebuchet MS', sans-serif",
+          fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
         }}
       >
         <span>{icon} {label}</span>
@@ -181,7 +181,7 @@ function ActionButton({ label, onClick, disabled, cooldownPct }) {
         flex: 1,
         padding: "10px 6px",
         fontSize: 13,
-        fontFamily: "'Trebuchet MS', sans-serif",
+        fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
         letterSpacing: "0.02em",
         color: disabled ? "#7A8290" : COLORS.offWhite,
         background: disabled ? "#9FA6B2" : COLORS.navyLight,
@@ -406,7 +406,7 @@ export default function TamagotchiApp() {
         width: "100%",
         maxWidth: 380,
         margin: "0 auto",
-        fontFamily: "'Trebuchet MS', sans-serif",
+        fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
         color: COLORS.charcoal,
       }}
     >
@@ -421,7 +421,7 @@ export default function TamagotchiApp() {
       >
         <div
           style={{
-            fontFamily: "Georgia, 'Iowan Old Style', serif",
+            fontFamily: "'Pixelify Sans', Georgia, serif",
             fontSize: 15,
             letterSpacing: "0.03em",
             color: COLORS.offWhite,
@@ -541,7 +541,7 @@ export default function TamagotchiApp() {
             border: "none",
             padding: "4px 8px",
             fontSize: 11,
-            fontFamily: "'Trebuchet MS', sans-serif",
+            fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
             color: confirmReset ? "#E0685E" : COLORS.offWhite,
             textDecoration: "underline",
             cursor: "pointer",
