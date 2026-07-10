@@ -4,9 +4,9 @@
 export const STORAGE_KEY = "tomagotchi-save-v1";
 
 // One in-game "day" (tick) — must match the interval used in the live loop.
-// 30 minutes of real time per in-game day: hunger drains fully in ~13 hours
-// if the pet is left alone, so it wants attention a few times a day.
-export const TICK_MS = 30 * 60 * 1000;
+// 20 minutes of real time per in-game day: hunger drains fully in ~11 hours
+// if the pet is left alone, so it wants attention three or four times a day.
+export const TICK_MS = 20 * 60 * 1000;
 
 // Sleep runs on its own faster clock so a nap takes ~40 real minutes
 // instead of hours: energy recovers per minute, with a small hunger/joy

@@ -64,13 +64,13 @@ const COLORS = {
   alert: "#B0473F", // low-stat warning (kept from the old palette)
 };
 
-// At 30 real minutes per in-game day, 48 in-game days pass per real day:
+// At 20 real minutes per in-game day, 72 in-game days pass per real day:
 // hatchling for its first real day, sprout through days 2-3, elder from
 // day 4 on.
 const STAGES = [
   { name: "hatchling", minAge: 0, size: 0.62 },
-  { name: "sprout", minAge: 48, size: 0.8 },
-  { name: "elder", minAge: 144, size: 1 },
+  { name: "sprout", minAge: 72, size: 0.8 },
+  { name: "elder", minAge: 216, size: 1 },
 ];
 
 function clamp(n, lo = 0, hi = 100) {
