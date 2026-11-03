@@ -20,6 +20,7 @@ import roomMorning from "./assets/room-morning.png";
 import roomDay from "./assets/room-day.png";
 import roomEvening from "./assets/room-evening.png";
 import roomNight from "./assets/room-night.png";
+import AutumnLeaves, { isAutumn } from "./AutumnLeaves";
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -262,11 +263,16 @@ export default function TamagotchiApp() {
   const [mess, setMess] = useState(initial.mess);
   const [confirmReset, setConfirmReset] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
+  const [autumn, setAutumn] = useState(isAutumn);
   const tickRef = useRef(null);
 
   // swap the room's lighting when the player's clock crosses a boundary
+  // (and bring the leaves in or out when the season changes)
   useEffect(() => {
-    const t = setInterval(() => setTimeOfDay(getTimeOfDay()), 60 * 1000);
+    const t = setInterval(() => {
+      setTimeOfDay(getTimeOfDay());
+      setAutumn(isAutumn());
+    }, 60 * 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -476,6 +482,7 @@ export default function TamagotchiApp() {
               height="280"
               style={{ imageRendering: "pixelated" }}
             />
+            {autumn && <AutumnLeaves timeOfDay={timeOfDay} />}
             {mess && (
               <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.charcoal} opacity="0.5" />
             )}

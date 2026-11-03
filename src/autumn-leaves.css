@@ -1,0 +1,63 @@
+/* Falling leaves outside the window. Units are the room's 280x280 viewBox. */
+
+.leaf-fall {
+  animation-name: leaf-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.leaf-sway {
+  animation-name: leaf-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.leaf-flip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: leaf-flip;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Drift down and across the window on the breeze. */
+@keyframes leaf-fall {
+  from {
+    transform: translate(calc(var(--x0) * 1px), 28px);
+  }
+  to {
+    transform: translate(calc((var(--x0) + var(--drift)) * 1px), 162px);
+  }
+}
+
+/* Side-to-side flutter. */
+@keyframes leaf-sway {
+  from {
+    transform: translateX(calc(var(--sway) * -1px));
+  }
+  to {
+    transform: translateX(calc(var(--sway) * 1px));
+  }
+}
+
+/* Tumble: a slight rock plus a partial flip (a full flip spends too long
+   edge-on and invisible). */
+@keyframes leaf-flip {
+  from {
+    transform: rotate(-18deg) scaleX(1);
+  }
+  to {
+    transform: rotate(18deg) scaleX(-0.6);
+  }
+}
+
+/* For players who turn off motion: freeze the leaves mid-air. */
+@media (prefers-reduced-motion: reduce) {
+  .leaf-fall,
+  .leaf-sway,
+  .leaf-flip {
+    animation-play-state: paused;
+  }
+}
