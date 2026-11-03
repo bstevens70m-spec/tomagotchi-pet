@@ -1,5 +1,13 @@
 import React from "react";
 import windowMask from "./assets/window-mask.png";
+import maple from "./assets/leaves/maple.png";
+import oak from "./assets/leaves/oak.png";
+import ginkgo from "./assets/leaves/ginkgo.png";
+import elm from "./assets/leaves/elm.png";
+import redbud from "./assets/leaves/redbud.png";
+import beech from "./assets/leaves/beech.png";
+import birch from "./assets/leaves/birch.png";
+import sweetgum from "./assets/leaves/sweetgum.png";
 import "./autumn-leaves.css";
 
 // Autumn = September through November (northern hemisphere), following
@@ -9,90 +17,50 @@ export function isAutumn(date = new Date()) {
   return m >= 8 && m <= 10;
 }
 
-// Pixel-art leaf sprites. X = leaf color, s = darker stem/vein.
+// The player's leaf sprites, redrawn on a small pixel grid so they stay
+// crisp at in-game size. w/h are each sprite's size in pixels; one shared
+// scale keeps the leaves' relative sizes from the original sheet.
 const SPRITES = {
-  maple: [
-    "...X...",
-    ".X.X.X.",
-    ".XXXXX.",
-    "XXXXXXX",
-    ".XXsXX.",
-    "..XsX..",
-    "...s...",
-  ],
-  oval: [
-    "...XX",
-    "..XXX",
-    ".XXXX",
-    "XXsX.",
-    "Xs...",
-    "s....",
-  ],
-  round: [
-    ".XX.",
-    "XXXX",
-    "XsXX",
-    ".s..",
-  ],
+  maple: { src: maple, w: 17, h: 18 },
+  oak: { src: oak, w: 14, h: 17 },
+  ginkgo: { src: ginkgo, w: 18, h: 16 },
+  elm: { src: elm, w: 14, h: 17 },
+  redbud: { src: redbud, w: 15, h: 16 },
+  beech: { src: beech, w: 14, h: 17 },
+  birch: { src: birch, w: 14, h: 18 },
+  sweetgum: { src: sweetgum, w: 18, h: 17 },
 };
 
-// Size of one leaf pixel in room units, close to the room art's pixels.
-const PX = 1.4;
-
-const LEAF_COLORS = ["#C2452D", "#D9732B", "#E8A33D", "#A8452A", "#8C5A2F", "#E3B341"];
+// Size of one sprite pixel in room units.
+const PX = 0.75;
 
 // Each leaf crosses the window on its own path. The glass spans roughly
 // x 76-203 of the 280-unit room, so paths are centered on it. Negative
 // delays mean the breeze is already mid-flow when the page opens.
 const LEAVES = [
-  { sprite: "maple", color: 0, x0: 58, drift: 50, dur: 11, delay: -1, sway: 6, swayDur: 2.6, flipDur: 1.9 },
-  { sprite: "oval", color: 2, x0: 104, drift: 45, dur: 9, delay: -6.5, sway: 4, swayDur: 2.1, flipDur: 1.4 },
-  { sprite: "round", color: 4, x0: 145, drift: 40, dur: 12.5, delay: -3.5, sway: 5, swayDur: 3.0, flipDur: 2.3 },
-  { sprite: "maple", color: 1, x0: 125, drift: 55, dur: 10, delay: -8.2, sway: 7, swayDur: 2.4, flipDur: 1.6 },
-  { sprite: "oval", color: 3, x0: 82, drift: 45, dur: 13, delay: -10.5, sway: 4, swayDur: 2.9, flipDur: 2.0 },
-  { sprite: "round", color: 5, x0: 165, drift: 35, dur: 9.5, delay: -2.4, sway: 5, swayDur: 2.2, flipDur: 1.3 },
-  { sprite: "maple", color: 2, x0: 70, drift: 60, dur: 12, delay: -5.2, sway: 6, swayDur: 2.7, flipDur: 2.1 },
+  { sprite: "maple", x0: 58, drift: 50, dur: 11, delay: -1, sway: 6, swayDur: 2.6, flipDur: 1.9 },
+  { sprite: "ginkgo", x0: 104, drift: 45, dur: 9, delay: -6.5, sway: 4, swayDur: 2.1, flipDur: 1.4 },
+  { sprite: "beech", x0: 145, drift: 40, dur: 12.5, delay: -3.5, sway: 5, swayDur: 3.0, flipDur: 2.3 },
+  { sprite: "oak", x0: 125, drift: 55, dur: 10, delay: -8.2, sway: 7, swayDur: 2.4, flipDur: 1.6 },
+  { sprite: "redbud", x0: 82, drift: 45, dur: 13, delay: -10.5, sway: 4, swayDur: 2.9, flipDur: 2.0 },
+  { sprite: "birch", x0: 165, drift: 35, dur: 9.5, delay: -2.4, sway: 5, swayDur: 2.2, flipDur: 1.3 },
+  { sprite: "sweetgum", x0: 70, drift: 60, dur: 12, delay: -5.2, sway: 6, swayDur: 2.7, flipDur: 2.1 },
+  { sprite: "elm", x0: 112, drift: 50, dur: 11.5, delay: -9.5, sway: 5, swayDur: 2.5, flipDur: 1.7 },
 ];
 
-// Leaves are outside, so they pick up the scene's light.
+// Leaves are outside, so they pick up the scene's light: each color is
+// mixed toward the tint by `amount`.
 const TINTS = {
-  morning: { color: "#C8CCE6", amount: 0.18 },
-  day: { color: "#FFFFFF", amount: 0 },
-  evening: { color: "#8A3A62", amount: 0.22 },
-  night: { color: "#161D33", amount: 0.58 },
+  morning: { color: [200, 204, 230], amount: 0.18 },
+  day: { color: [255, 255, 255], amount: 0 },
+  evening: { color: [138, 58, 98], amount: 0.22 },
+  night: { color: [22, 29, 51], amount: 0.58 },
 };
 
-function mix(hex, toHex, amount) {
-  const a = parseInt(hex.slice(1), 16);
-  const b = parseInt(toHex.slice(1), 16);
-  const ch = (v, shift) => (v >> shift) & 255;
-  const out = [16, 8, 0].map((s) =>
-    Math.round(ch(a, s) + (ch(b, s) - ch(a, s)) * amount)
-  );
-  return "#" + out.map((v) => v.toString(16).padStart(2, "0")).join("");
-}
-
-function LeafSprite({ rows, color }) {
-  const stem = mix(color, "#2A140C", 0.45);
-  const w = rows[0].length;
-  const h = rows.length;
-  const rects = [];
-  rows.forEach((row, y) =>
-    [...row].forEach((c, x) => {
-      if (c === ".") return;
-      rects.push(
-        <rect
-          key={`${x}-${y}`}
-          x={(x - w / 2) * PX}
-          y={(y - h / 2) * PX}
-          width={PX + 0.05}
-          height={PX + 0.05}
-          fill={c === "s" ? stem : color}
-        />
-      );
-    })
-  );
-  return <>{rects}</>;
+function tintMatrix({ color, amount: a }) {
+  const [r, g, b] = color.map((c) => ((c / 255) * a).toFixed(4));
+  const k = (1 - a).toFixed(4);
+  return `${k} 0 0 0 ${r}  0 ${k} 0 0 ${g}  0 0 ${k} 0 ${b}  0 0 0 1 0`;
 }
 
 // Rendered inside the room's <svg viewBox="0 0 280 280">, above the room
@@ -113,39 +81,59 @@ export default function AutumnLeaves({ timeOfDay }) {
             style={{ imageRendering: "pixelated" }}
           />
         </mask>
+        <filter
+          id="leaf-tint"
+          filterUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width="280"
+          height="280"
+          colorInterpolationFilters="sRGB"
+        >
+          <feColorMatrix type="matrix" values={tintMatrix(tint)} />
+        </filter>
       </defs>
-      <g mask="url(#window-glass)">
-        {LEAVES.map((leaf, i) => (
-          <g
-            key={i}
-            className="leaf-fall"
-            style={{
-              "--x0": leaf.x0,
-              "--drift": leaf.drift,
-              animationDuration: `${leaf.dur}s`,
-              animationDelay: `${leaf.delay}s`,
-            }}
-          >
+      <g mask="url(#window-glass)" filter={tint.amount > 0 ? "url(#leaf-tint)" : undefined}>
+        {LEAVES.map((leaf, i) => {
+          const s = SPRITES[leaf.sprite];
+          const w = s.w * PX;
+          const h = s.h * PX;
+          return (
             <g
-              className="leaf-sway"
+              key={i}
+              className="leaf-fall"
               style={{
-                "--sway": leaf.sway,
-                animationDuration: `${leaf.swayDur}s`,
+                "--x0": leaf.x0,
+                "--drift": leaf.drift,
+                animationDuration: `${leaf.dur}s`,
                 animationDelay: `${leaf.delay}s`,
               }}
             >
               <g
-                className="leaf-flip"
-                style={{ animationDuration: `${leaf.flipDur}s`, animationDelay: `${leaf.delay}s` }}
+                className="leaf-sway"
+                style={{
+                  "--sway": leaf.sway,
+                  animationDuration: `${leaf.swayDur}s`,
+                  animationDelay: `${leaf.delay}s`,
+                }}
               >
-                <LeafSprite
-                  rows={SPRITES[leaf.sprite]}
-                  color={mix(LEAF_COLORS[leaf.color], tint.color, tint.amount)}
-                />
+                <g
+                  className="leaf-flip"
+                  style={{ animationDuration: `${leaf.flipDur}s`, animationDelay: `${leaf.delay}s` }}
+                >
+                  <image
+                    href={s.src}
+                    x={-w / 2}
+                    y={-h / 2}
+                    width={w}
+                    height={h}
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                </g>
               </g>
             </g>
-          </g>
-        ))}
+          );
+        })}
       </g>
     </>
   );
