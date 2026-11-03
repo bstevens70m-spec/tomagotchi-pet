@@ -103,7 +103,17 @@
   border-radius: 50%;
   border: 2px solid #2e2e2e;
   background: #e1ff7c;
-  margin-bottom: -6px; /* the dot's center sits on the spot */
+  margin-bottom: -7.5px; /* the dot's center (15px with border) sits on the spot */
+}
+
+/* near an edge: the dot stays on the spot, the label extends inward */
+.map-pin.align-start {
+  transform: translate(-7.5px, -100%);
+  align-items: flex-start;
+}
+.map-pin.align-end {
+  transform: translate(calc(-100% + 7.5px), -100%);
+  align-items: flex-end;
 }
 
 .map-pin.is-home .map-pin-dot {

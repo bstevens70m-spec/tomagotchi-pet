@@ -19,6 +19,12 @@ const pct = (loc) => ({
 });
 const widthPct = (w) => `${(w / MAP_SIZE.w) * 100}%`;
 
+// Pins near the map's left/right edge show their label extending inward,
+// so it isn't cut off.
+const EDGE = 150; // map pixels
+const edgeClass = (loc) =>
+  loc.x < EDGE ? " align-start" : loc.x > MAP_SIZE.w - EDGE ? " align-end" : "";
+
 
 function EffectChips({ effect }) {
   const entries = Object.entries(effect).filter(([, v]) => v);
@@ -152,7 +158,7 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
               type="button"
               className={`map-pin${selected === loc.id ? " is-selected" : ""}${
                 loc.id === "home" ? " is-home" : ""
-              }`}
+              }${edgeClass(loc)}`}
               style={pct(loc)}
               onClick={() => !wasDrag() && setSelected(loc.id)}
             >
