@@ -48,12 +48,6 @@
   -webkit-user-drag: none;
 }
 
-.map-tint {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
 /* ---------- pins ---------- */
 
 .map-pin {

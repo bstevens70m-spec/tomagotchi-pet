@@ -1,10 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import mapImage from "./assets/map.webp";
 import catIcon from "./assets/cat-neutral.png";
 import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
 import {
-  trainSprite,
-  occluderSprite,
+  MAP_IMAGES,
+  TRAIN_SPRITES,
+  OCCLUDER_SPRITES,
   TRAIN_SIZE,
   OCCLUDER,
   PARKED,
@@ -18,13 +18,6 @@ const pct = (loc) => ({
 });
 const widthPct = (w) => `${(w / MAP_SIZE.w) * 100}%`;
 
-// The map matches the room's lighting for the time of day.
-const MAP_TINT = {
-  morning: "rgba(200, 204, 230, 0.12)",
-  day: "transparent",
-  evening: "rgba(138, 58, 98, 0.22)",
-  night: "rgba(18, 24, 44, 0.5)",
-};
 
 function EffectChips({ effect }) {
   const entries = Object.entries(effect).filter(([, v]) => v);
@@ -123,24 +116,24 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
         onPointerLeave={onPointerUp}
       >
         <div className="map-canvas">
-          <img src={mapImage} alt="Neighborhood map" draggable="false" />
+          {/* the map, lit for the time of day */}
+          <img src={MAP_IMAGES[timeOfDay]} alt="Neighborhood map" draggable="false" />
           {/* the L train, and the building it passes behind */}
           <img
             ref={trainRef}
             className="map-sprite"
-            src={trainSprite}
+            src={TRAIN_SPRITES[timeOfDay]}
             alt=""
             draggable="false"
             style={{ ...pct(PARKED), width: widthPct(TRAIN_SIZE.w) }}
           />
           <img
             className="map-sprite"
-            src={occluderSprite}
+            src={OCCLUDER_SPRITES[timeOfDay]}
             alt=""
             draggable="false"
             style={{ ...pct(OCCLUDER), width: widthPct(OCCLUDER.w) }}
           />
-          <div className="map-tint" style={{ background: MAP_TINT[timeOfDay] }} />
           {LOCATIONS.map((loc) => (
             <button
               key={loc.id}

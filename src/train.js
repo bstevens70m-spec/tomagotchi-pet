@@ -1,10 +1,29 @@
 // The elevated train that runs across the neighborhood map. Everything is
 // in the map image's own pixels (1890 x 832).
 import { useEffect } from "react";
-import trainSprite from "./assets/train.png";
-import occluderSprite from "./assets/train-occluder.png";
+import mapDay from "./assets/map-day.webp";
+import mapMorning from "./assets/map-morning.webp";
+import mapEvening from "./assets/map-evening.webp";
+import mapNight from "./assets/map-night.webp";
+import trainDay from "./assets/train-day.png";
+import trainMorning from "./assets/train-morning.png";
+import trainEvening from "./assets/train-evening.png";
+import trainNight from "./assets/train-night.png";
+import occluderDay from "./assets/train-occluder-day.png";
+import occluderMorning from "./assets/train-occluder-morning.png";
+import occluderEvening from "./assets/train-occluder-evening.png";
+import occluderNight from "./assets/train-occluder-night.png";
 
-export { trainSprite, occluderSprite };
+// The map art comes in four lightings that follow the day/night cycle;
+// each has its own train (lit windows at night) and foreground building.
+export const MAP_IMAGES = { morning: mapMorning, day: mapDay, evening: mapEvening, night: mapNight };
+export const TRAIN_SPRITES = { morning: trainMorning, day: trainDay, evening: trainEvening, night: trainNight };
+export const OCCLUDER_SPRITES = {
+  morning: occluderMorning,
+  day: occluderDay,
+  evening: occluderEvening,
+  night: occluderNight,
+};
 
 export const TRAIN_SIZE = { w: 185, h: 116 };
 

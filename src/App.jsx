@@ -26,10 +26,10 @@ import AutumnLeaves, { isAutumn } from "./AutumnLeaves";
 import { getTimeOfDay } from "./sky";
 import MapView from "./MapView";
 import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
-import mapImage from "./assets/map.webp";
 import {
-  trainSprite,
-  occluderSprite,
+  MAP_IMAGES,
+  TRAIN_SPRITES,
+  OCCLUDER_SPRITES,
   TRAIN_SIZE,
   OCCLUDER,
   PARKED,
@@ -40,7 +40,7 @@ import {
 // on the map (placeholder until each place gets its own scene art).
 const POSTCARD_SIZE = 380; // map pixels across
 
-function Postcard({ place }) {
+function Postcard({ place, timeOfDay }) {
   const S = POSTCARD_SIZE;
   const x0 = Math.min(Math.max(place.x - S / 2, 0), MAP_SIZE.w - S);
   const y0 = Math.min(Math.max(place.y - S / 2 - 30, 0), MAP_SIZE.h - S);
@@ -52,7 +52,7 @@ function Postcard({ place }) {
   return (
     <>
       <image
-        href={mapImage}
+        href={MAP_IMAGES[timeOfDay]}
         x={-x0 * k}
         y={-y0 * k}
         width={MAP_SIZE.w * k}
@@ -62,13 +62,13 @@ function Postcard({ place }) {
       {/* the L rumbles through any close-up that shows the tracks */}
       <image
         ref={trainRef}
-        href={trainSprite}
+        href={TRAIN_SPRITES[timeOfDay]}
         width={TRAIN_SIZE.w * k}
         height={TRAIN_SIZE.h * k}
         style={{ imageRendering: "pixelated", ...at(PARKED) }}
       />
       <image
-        href={occluderSprite}
+        href={OCCLUDER_SPRITES[timeOfDay]}
         x={(OCCLUDER.x - x0) * k}
         y={(OCCLUDER.y - y0) * k}
         width={OCCLUDER.w * k}
@@ -79,12 +79,6 @@ function Postcard({ place }) {
   );
 }
 
-const POSTCARD_TINT = {
-  morning: { fill: "#C8CCE6", opacity: 0.12 },
-  day: { fill: "#000000", opacity: 0 },
-  evening: { fill: "#8A3A62", opacity: 0.22 },
-  night: { fill: "#12182C", opacity: 0.5 },
-};
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -572,13 +566,7 @@ export default function TamagotchiApp() {
             <>
               {/* out and about: a close-up of that spot on the map */}
               <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
-                <Postcard place={place} />
-                <rect
-                  width="280"
-                  height="280"
-                  fill={POSTCARD_TINT[timeOfDay].fill}
-                  opacity={POSTCARD_TINT[timeOfDay].opacity}
-                />
+                <Postcard place={place} timeOfDay={timeOfDay} />
                 {autumn && <AutumnLeaves timeOfDay={timeOfDay} outdoors />}
                 <ellipse cx="140" cy="231" rx={48 * stage.size} ry={7 * stage.size} fill="#000" opacity="0.3" />
                 <Creature mood={mood} stage={stage} bump={bump} />
