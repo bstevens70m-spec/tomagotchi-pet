@@ -25,10 +25,10 @@
 /* Drift down and across the window on the breeze. */
 @keyframes leaf-fall {
   from {
-    transform: translate(calc(var(--x0) * 1px), 28px);
+    transform: translate(calc(var(--x0) * 1px), var(--y0, 28px));
   }
   to {
-    transform: translate(calc((var(--x0) + var(--drift)) * 1px), 162px);
+    transform: translate(calc((var(--x0) + var(--drift)) * 1px), var(--y1, 162px));
   }
 }
 

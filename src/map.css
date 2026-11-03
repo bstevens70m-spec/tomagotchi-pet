@@ -1,0 +1,255 @@
+/* Neighborhood map, shown inside the room window. */
+
+.map-view {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #1f2a44;
+  font-family: "Pixelify Sans", "Trebuchet MS", sans-serif;
+}
+
+.map-scroll {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+.map-scroll::-webkit-scrollbar {
+  display: none;
+}
+.map-scroll:active {
+  cursor: grabbing;
+}
+
+.map-canvas {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 1890 / 832;
+}
+
+.map-canvas > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.map-tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---------- pins ---------- */
+
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.map-pin-label {
+  padding: 3px 7px 4px;
+  border-radius: 6px;
+  border: 1px solid #2e2e2e;
+  background: #1f2a44;
+  color: #dbdbdb;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 #2e2e2e;
+}
+
+.map-pin-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #2e2e2e;
+  background: #e1ff7c;
+  margin-bottom: -6px; /* the dot's center sits on the spot */
+}
+
+.map-pin.is-home .map-pin-dot {
+  background: #4ad1b0;
+}
+
+.map-pin:hover .map-pin-label,
+.map-pin.is-selected .map-pin-label {
+  background: #e1ff7c;
+  color: #1f2a44;
+}
+
+/* ---------- the cat ---------- */
+
+.map-cat {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #2e2e2e;
+  background: #dbdbdb;
+  box-shadow: 0 0 0 3px #4ad1b0, 0 3px 6px rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition: left 1.8s ease-in-out, top 1.8s ease-in-out;
+  z-index: 2;
+}
+
+.map-cat img {
+  width: 28px;
+  image-rendering: pixelated;
+  margin-top: 2px;
+}
+
+.map-cat.is-walking img {
+  animation: map-hop 0.32s ease-in-out infinite alternate;
+}
+
+@keyframes map-hop {
+  from { transform: translateY(1px); }
+  to { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-cat { transition-duration: 0.2s; }
+  .map-cat.is-walking img { animation: none; }
+}
+
+/* ---------- overlays ---------- */
+
+.map-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #2e2e2e;
+  background: #1f2a44;
+  color: #dbdbdb;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #2e2e2e;
+  z-index: 3;
+}
+
+.map-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  padding: 4px 10px 5px;
+  border-radius: 999px;
+  background: rgba(31, 42, 68, 0.85);
+  color: #dbdbdb;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.map-card {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #2e2e2e;
+  background: #dbdbdb;
+  color: #2e2e2e;
+  box-shadow: 0 3px 0 #2e2e2e;
+  z-index: 3;
+}
+
+.map-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.map-card-text strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2a44;
+}
+
+.map-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.map-chip {
+  padding: 1px 6px 2px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.map-chip.up {
+  background: #4ad1b0;
+  color: #1f2a44;
+}
+.map-chip.down {
+  background: #c4c4c4;
+  color: #4a5568;
+}
+
+.map-go {
+  flex: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #2e2e2e;
+  background: #31436b;
+  color: #dbdbdb;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #2e2e2e;
+}
+.map-go:disabled {
+  background: #9fa6b2;
+  color: #5d6573;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ---------- away-from-home label on the postcard view ---------- */
+
+.place-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 9px 5px;
+  border-radius: 6px;
+  border: 1px solid #2e2e2e;
+  background: #1f2a44;
+  color: #e1ff7c;
+  font-family: "Pixelify Sans", "Trebuchet MS", sans-serif;
+  font-size: 13px;
+  box-shadow: 0 2px 0 #2e2e2e;
+  pointer-events: none;
+}

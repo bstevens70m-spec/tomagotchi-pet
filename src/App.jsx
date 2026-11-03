@@ -24,6 +24,37 @@ import roomEvening from "./assets/room-evening.png";
 import roomNight from "./assets/room-night.png";
 import AutumnLeaves, { isAutumn } from "./AutumnLeaves";
 import { getTimeOfDay } from "./sky";
+import MapView from "./MapView";
+import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
+import mapImage from "./assets/map.webp";
+
+// Away from home, the window shows a "postcard": a close-up of that spot
+// on the map (placeholder until each place gets its own scene art).
+const POSTCARD_SIZE = 380; // map pixels across
+
+function Postcard({ place }) {
+  const S = POSTCARD_SIZE;
+  const x0 = Math.min(Math.max(place.x - S / 2, 0), MAP_SIZE.w - S);
+  const y0 = Math.min(Math.max(place.y - S / 2 - 30, 0), MAP_SIZE.h - S);
+  const k = 280 / S;
+  return (
+    <image
+      href={mapImage}
+      x={-x0 * k}
+      y={-y0 * k}
+      width={MAP_SIZE.w * k}
+      height={MAP_SIZE.h * k}
+      style={{ imageRendering: "pixelated" }}
+    />
+  );
+}
+
+const POSTCARD_TINT = {
+  morning: { fill: "#C8CCE6", opacity: 0.12 },
+  day: { fill: "#000000", opacity: 0 },
+  evening: { fill: "#8A3A62", opacity: 0.22 },
+  night: { fill: "#12182C", opacity: 0.5 },
+};
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -225,6 +256,7 @@ function getInitialState() {
     mess: false,
     log: "Your creature blinks awake for the first time.",
     adoptedAt: Date.now(),
+    location: "home",
   };
 
   const saved = loadSave();
@@ -246,6 +278,7 @@ function getInitialState() {
     mess: result.mess,
     log,
     adoptedAt: saved.adoptedAt ?? estimateAdoptedAt(saved),
+    location: LOCATIONS.some((l) => l.id === saved.location) ? saved.location : "home",
   };
 }
 
@@ -259,6 +292,10 @@ export default function TamagotchiApp() {
   const [log, setLog] = useState(initial.log);
   const [mess, setMess] = useState(initial.mess);
   const [adoptedAt, setAdoptedAt] = useState(initial.adoptedAt);
+  const [location, setLocation] = useState(initial.location);
+  const [mapOpen, setMapOpen] = useState(false);
+  const away = location !== "home";
+  const place = locationById(location);
   const [confirmReset, setConfirmReset] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
   const [autumn, setAutumn] = useState(isAutumn);
@@ -285,19 +322,19 @@ export default function TamagotchiApp() {
   // Persist to localStorage whenever the pet's state changes, so it
   // survives closing the tab or the browser.
   useEffect(() => {
-    saveState({ stats, age, asleep, mess, log, adoptedAt });
-  }, [stats, age, asleep, mess, log, adoptedAt]);
+    saveState({ stats, age, asleep, mess, log, adoptedAt, location });
+  }, [stats, age, asleep, mess, log, adoptedAt, location]);
 
   // Also save right before the tab actually closes/hides, as a safety net.
   useEffect(() => {
-    const handler = () => saveState({ stats, age, asleep, mess, log, adoptedAt });
+    const handler = () => saveState({ stats, age, asleep, mess, log, adoptedAt, location });
     window.addEventListener("pagehide", handler);
     document.addEventListener("visibilitychange", handler);
     return () => {
       window.removeEventListener("pagehide", handler);
       document.removeEventListener("visibilitychange", handler);
     };
-  }, [stats, age, asleep, mess, log, adoptedAt]);
+  }, [stats, age, asleep, mess, log, adoptedAt, location]);
 
   // main decay loop — one tick roughly = one in-game day.
   // Awake decay only; sleep recovery runs on its own faster loop below.
@@ -366,13 +403,33 @@ export default function TamagotchiApp() {
   }
 
   function rest() {
-    if (asleep) return;
+    if (asleep || away) return;
     setAsleep(true);
     setLog("Your creature curls up for a nap.");
   }
 
+  // Called when the cat's marker finishes walking across the map.
+  function arriveAt(id) {
+    const dest = locationById(id);
+    setLocation(id);
+    setStats((s) => ({
+      hunger: clamp(s.hunger + (dest.effect.hunger ?? 0)),
+      energy: clamp(s.energy + (dest.effect.energy ?? 0)),
+      joy: clamp(s.joy + (dest.effect.joy ?? 0)),
+    }));
+    setLog(dest.arrive);
+    // a beat on the map to see the cat arrive, then show the place
+    setTimeout(() => setMapOpen(false), 600);
+  }
+
+  function goHome() {
+    setLocation("home");
+    setMapOpen(false);
+    setLog(locationById("home").arrive);
+  }
+
   function clean() {
-    if (cooldowns.clean > 0) return;
+    if (cooldowns.clean > 0 || away) return;
     setMess(false);
     setStats((s) => ({ ...s, joy: clamp(s.joy + 6) }));
     setCooldowns((c) => ({ ...c, clean: 100 }));
@@ -390,6 +447,8 @@ export default function TamagotchiApp() {
     setStats({ hunger: 80, energy: 80, joy: 80 });
     setAge(0);
     setAdoptedAt(Date.now());
+    setLocation("home");
+    setMapOpen(false);
     setAsleep(false);
     setMess(false);
     setCooldowns({ feed: 0, play: 0, clean: 0 });
@@ -436,6 +495,7 @@ export default function TamagotchiApp() {
           }}
         >
           {stage.name} · day {daysSinceAdoption(adoptedAt)}
+          {away ? ` · ${place.name.toLowerCase()}` : ""}
         </div>
 
         {/* the window */}
@@ -471,22 +531,48 @@ export default function TamagotchiApp() {
             );
           })}
 
-          <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
-            {/* the room, lit for the player's time of day */}
-            <image
-              href={ROOM_BACKGROUNDS[timeOfDay]}
-              x="0"
-              y="0"
-              width="280"
-              height="280"
-              style={{ imageRendering: "pixelated" }}
+          {mapOpen ? (
+            <MapView
+              current={location}
+              timeOfDay={timeOfDay}
+              onArrive={arriveAt}
+              onClose={() => setMapOpen(false)}
             />
-            {autumn && <AutumnLeaves timeOfDay={timeOfDay} />}
-            {mess && (
-              <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.charcoal} opacity="0.5" />
-            )}
-            <Creature mood={mood} stage={stage} bump={bump} />
-          </svg>
+          ) : away ? (
+            <>
+              {/* out and about: a close-up of that spot on the map */}
+              <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
+                <Postcard place={place} />
+                <rect
+                  width="280"
+                  height="280"
+                  fill={POSTCARD_TINT[timeOfDay].fill}
+                  opacity={POSTCARD_TINT[timeOfDay].opacity}
+                />
+                {autumn && <AutumnLeaves timeOfDay={timeOfDay} outdoors />}
+                <ellipse cx="140" cy="231" rx={48 * stage.size} ry={7 * stage.size} fill="#000" opacity="0.3" />
+                <Creature mood={mood} stage={stage} bump={bump} />
+              </svg>
+              <div className="place-label">{place.name}</div>
+            </>
+          ) : (
+            <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
+              {/* the room, lit for the player's time of day */}
+              <image
+                href={ROOM_BACKGROUNDS[timeOfDay]}
+                x="0"
+                y="0"
+                width="280"
+                height="280"
+                style={{ imageRendering: "pixelated" }}
+              />
+              {autumn && <AutumnLeaves timeOfDay={timeOfDay} />}
+              {mess && (
+                <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.charcoal} opacity="0.5" />
+              )}
+              <Creature mood={mood} stage={stage} bump={bump} />
+            </svg>
+          )}
         </div>
 
         <div
@@ -522,8 +608,18 @@ export default function TamagotchiApp() {
         <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
           <ActionButton label="Feed" onClick={feed} disabled={asleep || cooldowns.feed > 0} cooldownPct={cooldowns.feed} />
           <ActionButton label="Play" onClick={play} disabled={asleep || cooldowns.play > 0} cooldownPct={cooldowns.play} />
-          <ActionButton label={asleep ? "Sleeping…" : "Rest"} onClick={rest} disabled={asleep} />
-          <ActionButton label="Clean" onClick={clean} disabled={cooldowns.clean > 0} cooldownPct={cooldowns.clean} />
+          <ActionButton label={asleep ? "Sleeping…" : "Rest"} onClick={rest} disabled={asleep || away} />
+          <ActionButton label="Clean" onClick={clean} disabled={away || cooldowns.clean > 0} cooldownPct={cooldowns.clean} />
+        </div>
+
+        {/* getting around the neighborhood */}
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <ActionButton
+            label={mapOpen ? "Close map" : asleep ? "Map (napping…)" : "Map"}
+            onClick={() => setMapOpen((o) => !o)}
+            disabled={asleep}
+          />
+          {away && !mapOpen && <ActionButton label="Head home" onClick={goHome} />}
         </div>
       </div>
 

@@ -40,7 +40,7 @@ export function loadSave() {
   }
 }
 
-export function saveState({ stats, age, asleep, mess, log, adoptedAt }) {
+export function saveState({ stats, age, asleep, mess, log, adoptedAt, location }) {
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -51,6 +51,7 @@ export function saveState({ stats, age, asleep, mess, log, adoptedAt }) {
         mess,
         log,
         adoptedAt,
+        location,
         lastUpdated: Date.now(),
       })
     );

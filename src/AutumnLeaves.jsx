@@ -67,7 +67,8 @@ function tintMatrix({ color, amount: a }) {
 // Rendered inside the room's <svg viewBox="0 0 280 280">, above the room
 // image. The mask shows the leaves only through the window glass, so they
 // pass behind the frame and dividers.
-export default function AutumnLeaves({ timeOfDay }) {
+// With `outdoors`, there's no window: leaves fall over the whole scene.
+export default function AutumnLeaves({ timeOfDay, outdoors = false }) {
   const tint = TINTS[timeOfDay] ?? TINTS.day;
   return (
     <>
@@ -94,7 +95,11 @@ export default function AutumnLeaves({ timeOfDay }) {
           <feColorMatrix type="matrix" values={tintMatrix(tint)} />
         </filter>
       </defs>
-      <g mask="url(#window-glass)" filter={tint.amount > 0 ? "url(#leaf-tint)" : undefined}>
+      <g
+        mask={outdoors ? undefined : "url(#window-glass)"}
+        filter={tint.amount > 0 ? "url(#leaf-tint)" : undefined}
+        style={outdoors ? { "--y0": "-12px", "--y1": "292px" } : undefined}
+      >
         {LEAVES.map((leaf, i) => {
           const s = SPRITES[leaf.sprite];
           const w = s.w * PX;
