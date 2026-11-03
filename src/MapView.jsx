@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import mapImage from "./assets/map.webp";
 import catIcon from "./assets/cat-neutral.png";
 import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
@@ -65,6 +65,26 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
     setTimeout(() => (drag.current = null), 0);
   }
   const wasDrag = () => drag.current?.moved;
+
+  // Close the place card when clicking anywhere outside it (or pressing
+  // Escape). Clicking another pin switches the card instead, and dragging
+  // the map to pan doesn't count as a click.
+  useEffect(() => {
+    if (!selected) return;
+    function onClick(e) {
+      if (e.target.closest(".map-card, .map-pin") || wasDrag()) return;
+      setSelected(null);
+    }
+    function onKey(e) {
+      if (e.key === "Escape") setSelected(null);
+    }
+    document.addEventListener("click", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [selected]);
 
   function go() {
     if (!selected || selected === markerAt || travelingTo) return;
