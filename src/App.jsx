@@ -4,6 +4,8 @@ import {
   saveState,
   clearSave,
   applyOfflineDecay,
+  estimateAdoptedAt,
+  daysSinceAdoption,
   formatDuration,
   TICK_MS,
   SLEEP_TICK_MS,
@@ -222,6 +224,7 @@ function getInitialState() {
     asleep: false,
     mess: false,
     log: "Your creature blinks awake for the first time.",
+    adoptedAt: Date.now(),
   };
 
   const saved = loadSave();
@@ -242,6 +245,7 @@ function getInitialState() {
     asleep: result.asleep,
     mess: result.mess,
     log,
+    adoptedAt: saved.adoptedAt ?? estimateAdoptedAt(saved),
   };
 }
 
@@ -254,6 +258,7 @@ export default function TamagotchiApp() {
   const [cooldowns, setCooldowns] = useState({ feed: 0, play: 0, clean: 0 });
   const [log, setLog] = useState(initial.log);
   const [mess, setMess] = useState(initial.mess);
+  const [adoptedAt, setAdoptedAt] = useState(initial.adoptedAt);
   const [confirmReset, setConfirmReset] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState(getTimeOfDay);
   const [autumn, setAutumn] = useState(isAutumn);
@@ -280,19 +285,19 @@ export default function TamagotchiApp() {
   // Persist to localStorage whenever the pet's state changes, so it
   // survives closing the tab or the browser.
   useEffect(() => {
-    saveState({ stats, age, asleep, mess, log });
-  }, [stats, age, asleep, mess, log]);
+    saveState({ stats, age, asleep, mess, log, adoptedAt });
+  }, [stats, age, asleep, mess, log, adoptedAt]);
 
   // Also save right before the tab actually closes/hides, as a safety net.
   useEffect(() => {
-    const handler = () => saveState({ stats, age, asleep, mess, log });
+    const handler = () => saveState({ stats, age, asleep, mess, log, adoptedAt });
     window.addEventListener("pagehide", handler);
     document.addEventListener("visibilitychange", handler);
     return () => {
       window.removeEventListener("pagehide", handler);
       document.removeEventListener("visibilitychange", handler);
     };
-  }, [stats, age, asleep, mess, log]);
+  }, [stats, age, asleep, mess, log, adoptedAt]);
 
   // main decay loop — one tick roughly = one in-game day.
   // Awake decay only; sleep recovery runs on its own faster loop below.
@@ -384,6 +389,7 @@ export default function TamagotchiApp() {
     clearSave();
     setStats({ hunger: 80, energy: 80, joy: 80 });
     setAge(0);
+    setAdoptedAt(Date.now());
     setAsleep(false);
     setMess(false);
     setCooldowns({ feed: 0, play: 0, clean: 0 });
@@ -429,7 +435,7 @@ export default function TamagotchiApp() {
             opacity: 0.9,
           }}
         >
-          {stage.name} · day {age}
+          {stage.name} · day {daysSinceAdoption(adoptedAt)}
         </div>
 
         {/* the window */}
