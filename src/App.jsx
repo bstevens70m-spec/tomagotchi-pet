@@ -21,6 +21,7 @@ import roomDay from "./assets/room-day.png";
 import roomEvening from "./assets/room-evening.png";
 import roomNight from "./assets/room-night.png";
 import AutumnLeaves, { isAutumn } from "./AutumnLeaves";
+import { getTimeOfDay } from "./sky";
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -30,21 +31,13 @@ const CAT_SPRITES = {
   asleep: catAsleep,
 };
 
-// The room follows the player's real clock.
+// The room follows Chicago's real sunrise and sunset (see sky.js).
 const ROOM_BACKGROUNDS = {
   morning: roomMorning,
   day: roomDay,
   evening: roomEvening,
   night: roomNight,
 };
-
-function getTimeOfDay(date = new Date()) {
-  const h = date.getHours();
-  if (h >= 6 && h < 11) return "morning";
-  if (h >= 11 && h < 17) return "day";
-  if (h >= 17 && h < 21) return "evening";
-  return "night";
-}
 
 // All five sprites share the same 400x323 frame, so swapping moods
 // never shifts the cat's position.

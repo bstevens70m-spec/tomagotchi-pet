@@ -8,12 +8,13 @@ import redbud from "./assets/leaves/redbud.png";
 import beech from "./assets/leaves/beech.png";
 import birch from "./assets/leaves/birch.png";
 import sweetgum from "./assets/leaves/sweetgum.png";
+import { chicagoMonth } from "./sky";
 import "./autumn-leaves.css";
 
-// Autumn = September through November (northern hemisphere), following
-// the player's real calendar like the rest of the game.
+// Autumn = September through November on Chicago's calendar, where the
+// cat's room is.
 export function isAutumn(date = new Date()) {
-  const m = date.getMonth();
+  const m = chicagoMonth(date);
   return m >= 8 && m <= 10;
 }
 
