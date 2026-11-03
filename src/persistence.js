@@ -40,7 +40,7 @@ export function loadSave() {
   }
 }
 
-export function saveState({ stats, age, asleep, mess, log }) {
+export function saveState({ stats, age, asleep, mess, log, adoptedAt }) {
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -50,6 +50,7 @@ export function saveState({ stats, age, asleep, mess, log }) {
         asleep,
         mess,
         log,
+        adoptedAt,
         lastUpdated: Date.now(),
       })
     );
@@ -116,6 +117,24 @@ export function applyOfflineDecay(saved, nowMs = Date.now()) {
     elapsedMs,
     wokeUp,
   };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// The game first went live on July 8, 2026, so no cat can be older.
+const GAME_LAUNCH_MS = Date.UTC(2026, 6, 8, 18, 0, 0);
+
+// Saves from before adoption dates were recorded only have the in-game
+// age, so estimate the adoption moment from that (clamped to the launch).
+// Early versions ran the in-game clock faster, so this is approximate.
+export function estimateAdoptedAt(saved, nowMs = Date.now()) {
+  const estimate = nowMs - (saved.age || 0) * TICK_MS;
+  return Math.min(nowMs, Math.max(GAME_LAUNCH_MS, estimate));
+}
+
+// Real-life days since adoption, counting the first 24 hours as day 1.
+export function daysSinceAdoption(adoptedAt, nowMs = Date.now()) {
+  return Math.floor(Math.max(0, nowMs - adoptedAt) / DAY_MS) + 1;
 }
 
 export function formatDuration(ms) {
