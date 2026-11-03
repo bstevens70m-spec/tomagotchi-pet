@@ -2,12 +2,21 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import mapImage from "./assets/map.webp";
 import catIcon from "./assets/cat-neutral.png";
 import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
+import {
+  trainSprite,
+  occluderSprite,
+  TRAIN_SIZE,
+  OCCLUDER,
+  PARKED,
+  useTrainAnimation,
+} from "./train";
 import "./map.css";
 
 const pct = (loc) => ({
   left: `${(loc.x / MAP_SIZE.w) * 100}%`,
   top: `${(loc.y / MAP_SIZE.h) * 100}%`,
 });
+const widthPct = (w) => `${(w / MAP_SIZE.w) * 100}%`;
 
 // The map matches the room's lighting for the time of day.
 const MAP_TINT = {
@@ -39,6 +48,8 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
   const [selected, setSelected] = useState(null);
   const [markerAt, setMarkerAt] = useState(current);
   const [travelingTo, setTravelingTo] = useState(null);
+  const trainRef = useRef(null);
+  useTrainAnimation(trainRef, pct);
 
   // open centered on wherever the cat is
   useLayoutEffect(() => {
@@ -113,6 +124,22 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
       >
         <div className="map-canvas">
           <img src={mapImage} alt="Neighborhood map" draggable="false" />
+          {/* the L train, and the building it passes behind */}
+          <img
+            ref={trainRef}
+            className="map-sprite"
+            src={trainSprite}
+            alt=""
+            draggable="false"
+            style={{ ...pct(PARKED), width: widthPct(TRAIN_SIZE.w) }}
+          />
+          <img
+            className="map-sprite"
+            src={occluderSprite}
+            alt=""
+            draggable="false"
+            style={{ ...pct(OCCLUDER), width: widthPct(OCCLUDER.w) }}
+          />
           <div className="map-tint" style={{ background: MAP_TINT[timeOfDay] }} />
           {LOCATIONS.map((loc) => (
             <button

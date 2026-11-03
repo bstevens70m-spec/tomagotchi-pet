@@ -27,9 +27,19 @@
   position: relative;
   height: 100%;
   aspect-ratio: 1890 / 832;
+  overflow: hidden; /* the train starts and ends off the map's edges */
 }
 
-.map-canvas > img {
+.map-sprite {
+  position: absolute;
+  height: auto;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.map-canvas > img:not(.map-sprite) {
   display: block;
   width: 100%;
   height: 100%;

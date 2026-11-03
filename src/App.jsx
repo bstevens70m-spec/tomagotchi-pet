@@ -27,6 +27,14 @@ import { getTimeOfDay } from "./sky";
 import MapView from "./MapView";
 import { LOCATIONS, MAP_SIZE, locationById } from "./locations";
 import mapImage from "./assets/map.webp";
+import {
+  trainSprite,
+  occluderSprite,
+  TRAIN_SIZE,
+  OCCLUDER,
+  PARKED,
+  useTrainAnimation,
+} from "./train";
 
 // Away from home, the window shows a "postcard": a close-up of that spot
 // on the map (placeholder until each place gets its own scene art).
@@ -37,15 +45,37 @@ function Postcard({ place }) {
   const x0 = Math.min(Math.max(place.x - S / 2, 0), MAP_SIZE.w - S);
   const y0 = Math.min(Math.max(place.y - S / 2 - 30, 0), MAP_SIZE.h - S);
   const k = 280 / S;
+  // map position -> where it lands in this close-up
+  const at = ({ x, y }) => ({ transform: `translate(${(x - x0) * k}px, ${(y - y0) * k}px)` });
+  const trainRef = useRef(null);
+  useTrainAnimation(trainRef, at, [place.id]);
   return (
-    <image
-      href={mapImage}
-      x={-x0 * k}
-      y={-y0 * k}
-      width={MAP_SIZE.w * k}
-      height={MAP_SIZE.h * k}
-      style={{ imageRendering: "pixelated" }}
-    />
+    <>
+      <image
+        href={mapImage}
+        x={-x0 * k}
+        y={-y0 * k}
+        width={MAP_SIZE.w * k}
+        height={MAP_SIZE.h * k}
+        style={{ imageRendering: "pixelated" }}
+      />
+      {/* the L rumbles through any close-up that shows the tracks */}
+      <image
+        ref={trainRef}
+        href={trainSprite}
+        width={TRAIN_SIZE.w * k}
+        height={TRAIN_SIZE.h * k}
+        style={{ imageRendering: "pixelated", ...at(PARKED) }}
+      />
+      <image
+        href={occluderSprite}
+        x={(OCCLUDER.x - x0) * k}
+        y={(OCCLUDER.y - y0) * k}
+        width={OCCLUDER.w * k}
+        height={OCCLUDER.h * k}
+        style={{ imageRendering: "pixelated" }}
+      />
+    </>
   );
 }
 
