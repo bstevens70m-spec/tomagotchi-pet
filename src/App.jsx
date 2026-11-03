@@ -33,6 +33,7 @@ import {
   TRAIN_SIZE,
   OCCLUDER,
   PARKED,
+  HEADLIGHT,
   useTrainAnimation,
 } from "./train";
 
@@ -60,13 +61,33 @@ function Postcard({ place, timeOfDay }) {
         style={{ imageRendering: "pixelated" }}
       />
       {/* the L rumbles through any close-up that shows the tracks */}
-      <image
-        ref={trainRef}
-        href={TRAIN_SPRITES[timeOfDay]}
-        width={TRAIN_SIZE.w * k}
-        height={TRAIN_SIZE.h * k}
-        style={{ imageRendering: "pixelated", ...at(PARKED) }}
-      />
+      <g ref={trainRef} style={at(PARKED)}>
+        {timeOfDay === "night" && (
+          <>
+            <defs>
+              <radialGradient id="headlight-glow">
+                <stop offset="0%" stopColor="rgb(238,150,62)" stopOpacity="0.78" />
+                <stop offset="55%" stopColor="rgb(230,138,55)" stopOpacity="0.38" />
+                <stop offset="100%" stopColor="rgb(230,138,55)" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <ellipse
+              cx={HEADLIGHT.cx * k}
+              cy={HEADLIGHT.cy * k}
+              rx={HEADLIGHT.rx * k}
+              ry={HEADLIGHT.ry * k}
+              transform={`rotate(${HEADLIGHT.angle} ${HEADLIGHT.cx * k} ${HEADLIGHT.cy * k})`}
+              fill="url(#headlight-glow)"
+            />
+          </>
+        )}
+        <image
+          href={TRAIN_SPRITES[timeOfDay]}
+          width={TRAIN_SIZE.w * k}
+          height={TRAIN_SIZE.h * k}
+          style={{ imageRendering: "pixelated" }}
+        />
+      </g>
       <image
         href={OCCLUDER_SPRITES[timeOfDay]}
         x={(OCCLUDER.x - x0) * k}

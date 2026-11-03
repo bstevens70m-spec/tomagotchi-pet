@@ -8,6 +8,7 @@ import {
   TRAIN_SIZE,
   OCCLUDER,
   PARKED,
+  HEADLIGHT,
   useTrainAnimation,
 } from "./train";
 import "./map.css";
@@ -119,14 +120,25 @@ export default function MapView({ current, timeOfDay, onArrive, onClose }) {
           {/* the map, lit for the time of day */}
           <img src={MAP_IMAGES[timeOfDay]} alt="Neighborhood map" draggable="false" />
           {/* the L train, and the building it passes behind */}
-          <img
+          <div
             ref={trainRef}
-            className="map-sprite"
-            src={TRAIN_SPRITES[timeOfDay]}
-            alt=""
-            draggable="false"
+            className="map-sprite map-train"
             style={{ ...pct(PARKED), width: widthPct(TRAIN_SIZE.w) }}
-          />
+          >
+            {timeOfDay === "night" && (
+              <div
+                className="map-headlight"
+                style={{
+                  left: `${((HEADLIGHT.cx - HEADLIGHT.rx) / TRAIN_SIZE.w) * 100}%`,
+                  top: `${((HEADLIGHT.cy - HEADLIGHT.ry) / TRAIN_SIZE.h) * 100}%`,
+                  width: `${((2 * HEADLIGHT.rx) / TRAIN_SIZE.w) * 100}%`,
+                  height: `${((2 * HEADLIGHT.ry) / TRAIN_SIZE.h) * 100}%`,
+                  transform: `rotate(${HEADLIGHT.angle}deg)`,
+                }}
+              />
+            )}
+            <img src={TRAIN_SPRITES[timeOfDay]} alt="" draggable="false" />
+          </div>
           <img
             className="map-sprite"
             src={OCCLUDER_SPRITES[timeOfDay]}

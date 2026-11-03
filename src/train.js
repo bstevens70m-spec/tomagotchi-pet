@@ -48,6 +48,11 @@ const OFFSET = [-92, -73.9];
 // it was drawn in.
 export const PARKED = { x: 226, y: 313 };
 
+// At night the headlights light up the track just ahead of the train: a
+// warm oval measured from the glow in the night map art, in map pixels
+// relative to the sprite's top-left, tilted to the track's angle.
+export const HEADLIGHT = { cx: 208, cy: 133, rx: 52, ry: 13, angle: 27.7 };
+
 const CYCLE_MS = 22000; // one trip plus a pause before the next train
 const TRAVEL = 0.41; // share of the cycle spent crossing the map
 const START_X = -110; // fully off the left edge

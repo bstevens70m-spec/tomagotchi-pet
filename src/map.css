@@ -39,6 +39,27 @@
   -webkit-user-drag: none;
 }
 
+.map-train img {
+  display: block;
+  position: relative; /* drawn above its headlight glow */
+  width: 100%;
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+}
+
+/* warm pool of light on the track ahead of the night train */
+.map-headlight {
+  position: absolute;
+  border-radius: 50%;
+  /* the orange of the lit ties in the night art */
+  background: radial-gradient(
+    closest-side,
+    rgba(238, 150, 62, 0.78),
+    rgba(230, 138, 55, 0.38) 55%,
+    rgba(230, 138, 55, 0) 100%
+  );
+}
+
 .map-canvas > img:not(.map-sprite) {
   display: block;
   width: 100%;
