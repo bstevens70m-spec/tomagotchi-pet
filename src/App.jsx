@@ -22,6 +22,8 @@ import roomEvening from "./assets/room-evening.png";
 import roomNight from "./assets/room-night.png";
 import AutumnLeaves, { isAutumn } from "./AutumnLeaves";
 import { getTimeOfDay } from "./sky";
+import { BowlIcon, BallIcon, MoonIcon, BrushIcon } from "./icons";
+import leafIcon from "./assets/leaf-icon.png";
 
 const CAT_SPRITES = {
   neutral: catNeutral,
@@ -44,18 +46,15 @@ const ROOM_BACKGROUNDS = {
 const SPRITE_ASPECT = 323 / 400;
 
 // ---------- palette ----------
-// Soft Navy / Lime Signal / Calm Mint / Cool Charcoal / Off White
+// Most of the look lives in leafkeep.css; these are the colors drawn
+// inside the room's SVG and the per-stat bar colors.
 const COLORS = {
-  navy: "#1F2A44", // frame, buttons
-  navyLight: "#31436B", // frame gradient top
-  lime: "#E1FF7C", // signal accent: rivets, cooldowns, mid gauges
-  mint: "#4AD1B0", // window bezel, healthy gauges
-  mintDark: "#2E9B80",
-  charcoal: "#2E2E2E", // borders, button shadows
-  offWhite: "#DBDBDB", // cards, light text
-  offWhiteDark: "#C4C4C4", // window fallback, gauge tracks
-  inkSoft: "#4A5568", // secondary text on light cards
-  alert: "#B0473F", // low-stat warning (kept from the old palette)
+  cream: "#F2E9D4", // sleeping "z"
+  ink: "#2A1712", // mess blob
+  mustard: "#F0C64E", // cooldown ring
+  hunger: "#D9553B",
+  energy: "#4E9E92",
+  joy: "#EDC649",
 };
 
 // At 20 real minutes per in-game day, 72 in-game days pass per real day:
@@ -109,9 +108,14 @@ function Creature({ mood, stage, bump }) {
         <text
           x={140 + w / 2}
           y={232 - h}
-          fontSize="16"
-          fill={COLORS.offWhite}
-          fontFamily="'Pixelify Sans', Georgia, serif"
+          fontSize="20"
+          fontWeight="800"
+          fill={COLORS.cream}
+          stroke={COLORS.ink}
+          strokeWidth="3.5"
+          paintOrder="stroke"
+          strokeLinejoin="round"
+          fontFamily="'Fraunces Variable', Georgia, serif"
         >
           z
         </text>
@@ -120,94 +124,55 @@ function Creature({ mood, stage, bump }) {
   );
 }
 
-// ---------- stat gauge ----------
-function Gauge({ label, value, icon }) {
+// ---------- stat bar ----------
+function Gauge({ label, value, color }) {
   const pct = clamp(value);
-  const color = pct < 25 ? COLORS.alert : pct < 55 ? COLORS.lime : COLORS.mint;
   return (
-    <div style={{ marginBottom: 10 }}>
+    <div className="lk-stat">
+      <span className="lk-stat-label">{label}</span>
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: 11,
-          letterSpacing: "0.04em",
-          textTransform: "uppercase",
-          color: COLORS.inkSoft,
-          marginBottom: 4,
-          fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
-        }}
+        className="lk-bar"
+        role="meter"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(pct)}
+        title={`${label}: ${Math.round(pct)}`}
       >
-        <span>{icon} {label}</span>
-        <span>{Math.round(pct)}</span>
-      </div>
-      <div
-        style={{
-          height: 8,
-          borderRadius: 4,
-          background: COLORS.offWhiteDark,
-          border: `1px solid ${COLORS.inkSoft}55`,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${pct}%`,
-            background: color,
-            transition: "width 400ms ease, background 400ms ease",
-          }}
-        />
+        <div className="lk-bar-fill" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
   );
 }
 
-// ---------- action button ----------
-function ActionButton({ label, onClick, disabled, cooldownPct }) {
+// ---------- round icon button ----------
+function ActionButton({ label, icon: Icon, onClick, disabled, active, cooldownPct }) {
+  // cooldown ring: unwinds from full to empty as the cooldown runs out
+  const r = 46;
+  const circ = 2 * Math.PI * r;
   return (
     <button
+      type="button"
+      className={`lk-btn${active ? " is-active" : ""}`}
       onClick={onClick}
       disabled={disabled}
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        flex: 1,
-        padding: "10px 6px",
-        fontSize: 13,
-        fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
-        letterSpacing: "0.02em",
-        color: disabled ? "#7A8290" : COLORS.offWhite,
-        background: disabled ? "#9FA6B2" : COLORS.navyLight,
-        border: `1px solid ${COLORS.charcoal}`,
-        borderRadius: 6,
-        cursor: disabled ? "default" : "pointer",
-        boxShadow: disabled ? "none" : "0 2px 0 " + COLORS.charcoal,
-        transform: "translateY(0)",
-        transition: "transform 80ms ease, box-shadow 80ms ease",
-      }}
-      onMouseDown={(e) => {
-        if (!disabled) e.currentTarget.style.transform = "translateY(2px)";
-      }}
-      onMouseUp={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
+      aria-label={label}
+      title={label}
     >
-      {label}
-      {disabled && cooldownPct != null && (
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            bottom: 0,
-            height: 3,
-            width: `${cooldownPct}%`,
-            background: COLORS.lime,
-          }}
-        />
+      <Icon />
+      {cooldownPct > 0 && (
+        <svg className="lk-cooldown" viewBox="0 0 100 100" aria-hidden="true">
+          <circle
+            cx="50"
+            cy="50"
+            r={r}
+            fill="none"
+            stroke={COLORS.mustard}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={`${(cooldownPct / 100) * circ} ${circ}`}
+          />
+        </svg>
       )}
     </button>
   );
@@ -271,6 +236,9 @@ export default function TamagotchiApp() {
 
   const stage = getStage(age);
   const mood = getMood(stats, asleep);
+  // `age` counts in-game days (one per TICK_MS); the badge shows the cat's
+  // age in real days, starting at Day 01.
+  const realDay = Math.floor((age * TICK_MS) / (24 * 60 * 60 * 1000)) + 1;
 
   const doBump = useCallback(() => {
     setBump(true);
@@ -391,168 +359,81 @@ export default function TamagotchiApp() {
     setConfirmReset(false);
   }
 
-  const moodLabel = {
-    happy: "content",
-    neutral: "doing fine",
-    sad: "a little low",
-    sick: "unwell",
-    asleep: "sleeping",
-  }[mood];
-
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: 380,
-        margin: "0 auto",
-        fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
-        color: COLORS.charcoal,
-      }}
-    >
-      {/* navy shadow-box frame */}
-      <div
-        style={{
-          background: `linear-gradient(180deg, ${COLORS.navyLight}, ${COLORS.navy})`,
-          borderRadius: 18,
-          padding: 14,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "'Pixelify Sans', Georgia, serif",
-            fontSize: 15,
-            letterSpacing: "0.03em",
-            color: COLORS.offWhite,
-            textAlign: "center",
-            marginBottom: 10,
-            opacity: 0.9,
-          }}
-        >
-          {stage.name} · day {age}
+    <main className="lk">
+      <header className="lk-card lk-header">
+        <img src={leafIcon} alt="" />
+        <h1 className="lk-title">Leafkeep</h1>
+        <div className="lk-day" title={`${stage.name}, ${realDay === 1 ? "first day" : `day ${realDay}`}`}>
+          Day {String(realDay).padStart(2, "0")}
         </div>
+      </header>
 
-        {/* the window */}
-        <div
-          style={{
-            position: "relative",
-            borderRadius: 10,
-            overflow: "hidden",
-            background: COLORS.offWhiteDark,
-            border: `6px solid ${COLORS.mint}`,
-            boxShadow: "inset 0 0 24px rgba(0,0,0,0.15)",
-          }}
-        >
-          {/* corner brackets */}
-          {["0,0", "1,0", "0,1", "1,1"].map((pos, i) => {
-            const [x, y] = pos.split(",");
-            return (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  width: 10,
-                  height: 10,
-                  background: COLORS.lime,
-                  borderRadius: "50%",
-                  top: y === "0" ? 6 : undefined,
-                  bottom: y === "1" ? 6 : undefined,
-                  left: x === "0" ? 6 : undefined,
-                  right: x === "1" ? 6 : undefined,
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.3)",
-                }}
-              />
-            );
-          })}
-
-          <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
-            {/* the room, lit for the player's time of day */}
-            <image
-              href={ROOM_BACKGROUNDS[timeOfDay]}
-              x="0"
-              y="0"
-              width="280"
-              height="280"
-              style={{ imageRendering: "pixelated" }}
-            />
-            {autumn && <AutumnLeaves timeOfDay={timeOfDay} />}
-            {mess && (
-              <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.charcoal} opacity="0.5" />
-            )}
-            <Creature mood={mood} stage={stage} bump={bump} />
-          </svg>
-        </div>
-
-        <div
-          style={{
-            textAlign: "center",
-            color: COLORS.offWhite,
-            fontSize: 12,
-            marginTop: 8,
-            marginBottom: 12,
-            fontStyle: "italic",
-            opacity: 0.85,
-            minHeight: 16,
-          }}
-        >
-          {log} — feeling {moodLabel}
-          {mess ? " · needs tidying" : ""}
-        </div>
-
-        {/* gauges on an off-white card */}
-        <div
-          style={{
-            background: COLORS.offWhite,
-            borderRadius: 10,
-            padding: "12px 14px 6px",
-          }}
-        >
-          <Gauge label="hunger" value={stats.hunger} icon="◆" />
-          <Gauge label="energy" value={stats.energy} icon="◆" />
-          <Gauge label="joy" value={stats.joy} icon="◆" />
-        </div>
-
-        {/* actions */}
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <ActionButton label="Feed" onClick={feed} disabled={asleep || cooldowns.feed > 0} cooldownPct={cooldowns.feed} />
-          <ActionButton label="Play" onClick={play} disabled={asleep || cooldowns.play > 0} cooldownPct={cooldowns.play} />
-          <ActionButton label={asleep ? "Sleeping…" : "Rest"} onClick={rest} disabled={asleep} />
-          <ActionButton label="Clean" onClick={clean} disabled={cooldowns.clean > 0} cooldownPct={cooldowns.clean} />
-        </div>
+      {/* the room, framed like a storybook illustration */}
+      <div className="lk-scene">
+        <svg viewBox="0 0 280 280">
+          <image
+            href={ROOM_BACKGROUNDS[timeOfDay]}
+            x="0"
+            y="0"
+            width="280"
+            height="280"
+            style={{ imageRendering: "pixelated" }}
+          />
+          {autumn && <AutumnLeaves timeOfDay={timeOfDay} />}
+          {mess && <ellipse cx="205" cy="228" rx="16" ry="6" fill={COLORS.ink} opacity="0.45" />}
+          <Creature mood={mood} stage={stage} bump={bump} />
+        </svg>
       </div>
 
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: 11,
-          color: COLORS.offWhite,
-          opacity: 0.65,
-          marginTop: 10,
-        }}
-      >
-        stats drift on their own — check back in and keep them balanced.
-      </div>
+      <section className="lk-card lk-panel">
+        <Gauge label="Hunger" value={stats.hunger} color={COLORS.hunger} />
+        <Gauge label="Energy" value={stats.energy} color={COLORS.energy} />
+        <Gauge label="Joy" value={stats.joy} color={COLORS.joy} />
 
-      <div style={{ textAlign: "center", marginTop: 6 }}>
+        <div className="lk-actions">
+          <ActionButton
+            label="Feed"
+            icon={BowlIcon}
+            onClick={feed}
+            disabled={asleep || cooldowns.feed > 0}
+            cooldownPct={cooldowns.feed}
+          />
+          <ActionButton
+            label="Play"
+            icon={BallIcon}
+            onClick={play}
+            disabled={asleep || cooldowns.play > 0}
+            cooldownPct={cooldowns.play}
+          />
+          <ActionButton
+            label={asleep ? "Sleeping…" : "Rest"}
+            icon={MoonIcon}
+            onClick={rest}
+            disabled={asleep}
+            active={asleep}
+          />
+          <ActionButton
+            label="Clean"
+            icon={BrushIcon}
+            onClick={clean}
+            disabled={cooldowns.clean > 0}
+            cooldownPct={cooldowns.clean}
+          />
+        </div>
+      </section>
+
+      <footer className="lk-footer">
         <button
+          type="button"
+          className={`lk-reset${confirmReset ? " is-confirming" : ""}`}
           onClick={startOver}
-          style={{
-            background: "none",
-            border: "none",
-            padding: "4px 8px",
-            fontSize: 11,
-            fontFamily: "'Pixelify Sans', 'Trebuchet MS', sans-serif",
-            color: confirmReset ? "#E0685E" : COLORS.offWhite,
-            textDecoration: "underline",
-            cursor: "pointer",
-            opacity: confirmReset ? 1 : 0.55,
-          }}
         >
           {confirmReset
             ? "really start over? your creature will be gone — click again to confirm"
             : "start over"}
         </button>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }
