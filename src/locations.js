@@ -10,6 +10,10 @@ import haasMorning from "./assets/places/haas-park-morning.webp";
 import haasDay from "./assets/places/haas-park-day.webp";
 import haasEvening from "./assets/places/haas-park-evening.webp";
 import haasNight from "./assets/places/haas-park-night.webp";
+import sevenMorning from "./assets/places/seven-eleven-morning.webp";
+import sevenDay from "./assets/places/seven-eleven-day.webp";
+import sevenEvening from "./assets/places/seven-eleven-evening.webp";
+import sevenNight from "./assets/places/seven-eleven-night.webp";
 
 // Places the cat can visit on the neighborhood map. Positions are in the
 // map image's own pixels (1890 x 832). Arriving somewhere applies its
@@ -66,6 +70,10 @@ export const LOCATIONS = [
     blurb: "Bright lights and late-night snacks. Open when nothing else is.",
     effect: { hunger: 15, joy: 5 },
     arrive: "7-Eleven run! The cat stares down the hot dog roller.",
+    scene: {
+      images: { morning: sevenMorning, day: sevenDay, evening: sevenEvening, night: sevenNight },
+      cat: { x: 168, y: 229, scale: 0.24 }, // on the sidewalk just right of the doors
+    },
   },
   {
     id: "park",
