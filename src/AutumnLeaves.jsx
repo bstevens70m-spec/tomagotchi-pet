@@ -49,6 +49,28 @@ const LEAVES = [
   { sprite: "elm", x0: 112, drift: 50, dur: 11.5, delay: -9.5, sway: 5, swayDur: 2.5, flipDur: 1.7 },
 ];
 
+// Outdoors there's no window, so the leaves use the whole 280-wide frame:
+// they fall from just above the top to just below the bottom, some drift
+// in from off-screen, and gusts carry a few out past the left and right
+// edges partway down.
+const OUTDOOR_LEAVES = [
+  { sprite: "maple", x0: 15, drift: 70, dur: 11, delay: -2, sway: 6, swayDur: 2.6, flipDur: 1.9 },
+  { sprite: "ginkgo", x0: 60, drift: 95, dur: 9.5, delay: -7, sway: 4, swayDur: 2.1, flipDur: 1.4 },
+  { sprite: "beech", x0: 110, drift: 85, dur: 12.5, delay: -4.5, sway: 5, swayDur: 3.0, flipDur: 2.3 },
+  { sprite: "oak", x0: 165, drift: 90, dur: 10.5, delay: -9, sway: 7, swayDur: 2.4, flipDur: 1.6 },
+  { sprite: "redbud", x0: 230, drift: 70, dur: 13, delay: -1, sway: 4, swayDur: 2.9, flipDur: 2.0 },
+  { sprite: "beech", x0: 255, drift: 40, dur: 12, delay: -6.5, sway: 5, swayDur: 2.8, flipDur: 2.2 },
+  // drifting in from off the left edge
+  { sprite: "birch", x0: -30, drift: 120, dur: 10, delay: -3.5, sway: 5, swayDur: 2.2, flipDur: 1.3 },
+  { sprite: "ginkgo", x0: -60, drift: 200, dur: 12, delay: -10, sway: 6, swayDur: 2.5, flipDur: 1.8 },
+  // gusts: blown out past the right edge partway down
+  { sprite: "sweetgum", x0: 150, drift: 210, dur: 9, delay: -5.5, sway: 6, swayDur: 2.7, flipDur: 2.1 },
+  { sprite: "maple", x0: 200, drift: 190, dur: 8.5, delay: -0.5, sway: 5, swayDur: 2.3, flipDur: 1.5 },
+  // ...and out past the left edge
+  { sprite: "elm", x0: 100, drift: -170, dur: 10.5, delay: -8, sway: 5, swayDur: 2.5, flipDur: 1.7 },
+  { sprite: "oak", x0: 45, drift: -130, dur: 11, delay: -3, sway: 6, swayDur: 2.6, flipDur: 1.9 },
+];
+
 // Leaves are outside, so they pick up the scene's light: each color is
 // mixed toward the tint by `amount`.
 const TINTS = {
@@ -100,7 +122,7 @@ export default function AutumnLeaves({ timeOfDay, outdoors = false }) {
         filter={tint.amount > 0 ? "url(#leaf-tint)" : undefined}
         style={outdoors ? { "--y0": "-12px", "--y1": "292px" } : undefined}
       >
-        {LEAVES.map((leaf, i) => {
+        {(outdoors ? OUTDOOR_LEAVES : LEAVES).map((leaf, i) => {
           const s = SPRITES[leaf.sprite];
           const w = s.w * PX;
           const h = s.h * PX;
