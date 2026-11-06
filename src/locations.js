@@ -6,6 +6,10 @@ import nativeMorning from "./assets/places/the-native-morning.webp";
 import nativeDay from "./assets/places/the-native-day.webp";
 import nativeEvening from "./assets/places/the-native-evening.webp";
 import nativeNight from "./assets/places/the-native-night.webp";
+import haasMorning from "./assets/places/haas-park-morning.webp";
+import haasDay from "./assets/places/haas-park-day.webp";
+import haasEvening from "./assets/places/haas-park-evening.webp";
+import haasNight from "./assets/places/haas-park-night.webp";
 
 // Places the cat can visit on the neighborhood map. Positions are in the
 // map image's own pixels (1890 x 832). Arriving somewhere applies its
@@ -80,6 +84,10 @@ export const LOCATIONS = [
     blurb: "A whole soccer field built for zoomies. Goalkeeping optional.",
     effect: { joy: 20, energy: -15, hunger: -8 },
     arrive: "At Haas Park! The cat sprints the full length of the pitch.",
+    scene: {
+      images: { morning: haasMorning, day: haasDay, evening: haasEvening, night: haasNight },
+      cat: { x: 102, y: 245, scale: 0.4 }, // out on the field, goals behind him
+    },
   },
 ];
 
