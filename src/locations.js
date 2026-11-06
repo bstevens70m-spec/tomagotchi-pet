@@ -43,7 +43,7 @@ export const LOCATIONS = [
     y: 313,
     blurb: "The neighborhood's go-to pizza. Oxford knows exactly which tables drop crusts.",
     effect: { hunger: 25, joy: 6, energy: -4 },
-    arrive: "Across from Pizza Lobo. Oxford tracks every slice that crosses the patio.",
+    arrive: "Oxford makes his usual Pizza Lobo stop. The servers and bartenders already know his name.",
     scene: {
       images: { morning: pizzaMorning, day: pizzaDay, evening: pizzaEvening, night: pizzaNight },
       cat: { x: 140, y: 252, scale: 0.6 }, // in the street, close to the viewer
