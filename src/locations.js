@@ -68,15 +68,6 @@ export const LOCATIONS = [
     arrive: "7-Eleven run! The cat stares down the hot dog roller.",
   },
   {
-    id: "train",
-    name: "The L",
-    x: 794,
-    y: 608,
-    blurb: "Watch the trains rumble past overhead.",
-    effect: { joy: 12, energy: -5 },
-    arrive: "Under the L. The cat's ears swivel at every train.",
-  },
-  {
     id: "park",
     name: "Haas Park",
     x: 1710,

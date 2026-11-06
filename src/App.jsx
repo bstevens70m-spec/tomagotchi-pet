@@ -604,7 +604,6 @@ export default function TamagotchiApp() {
                 ) : (
                   <Postcard place={place} timeOfDay={timeOfDay} />
                 )}
-                {autumn && <AutumnLeaves timeOfDay={timeOfDay} outdoors />}
                 {(() => {
                   const spot = place.scene?.cat ?? HOME_SPOT;
                   const s = stage.size * spot.scale;
@@ -615,6 +614,8 @@ export default function TamagotchiApp() {
                     </>
                   );
                 })()}
+                {/* outdoors the leaves blow past in front of the cat */}
+                {autumn && <AutumnLeaves timeOfDay={timeOfDay} outdoors />}
               </svg>
               <div className="place-label">{place.name}</div>
             </>
