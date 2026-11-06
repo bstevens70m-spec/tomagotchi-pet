@@ -51,7 +51,7 @@ export const LOCATIONS = [
     arrive: "Out on The Native's patio. The cat bobs its head to the DJ.",
     scene: {
       images: { morning: nativeMorning, day: nativeDay, evening: nativeEvening, night: nativeNight },
-      cat: { x: 200, y: 252, scale: 0.6 }, // in the bike lane, leaving the bar front in view
+      cat: { x: 112, y: 229, scale: 0.24 }, // on the sidewalk in front of the bar, about 2/3 door height
     },
   },
   {
