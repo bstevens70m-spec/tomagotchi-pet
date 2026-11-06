@@ -165,29 +165,33 @@ function getMood(stats, asleep) {
 }
 
 // ---------- creature (pixel-art cat sprites) ----------
-function Creature({ mood, stage, bump }) {
+// `spot` places the cat: center x and the y of its feet, in window units,
+// and a size multiplier (default: standing on the room's rug, full size).
+const HOME_SPOT = { x: 140, y: 232, scale: 1 };
+
+function Creature({ mood, stage, bump, spot = HOME_SPOT }) {
   const src = CAT_SPRITES[mood] ?? CAT_SPRITES.neutral;
-  const w = 150 * stage.size;
+  const w = 150 * stage.size * spot.scale;
   const h = w * SPRITE_ASPECT;
 
   return (
     <g
-      transform={bump ? "translate(0,-6)" : undefined}
+      transform={bump ? `translate(0,${-6 * spot.scale})` : undefined}
       style={{ transition: "transform 220ms ease" }}
     >
       <image
         href={src}
-        x={140 - w / 2}
-        y={232 - h}
+        x={spot.x - w / 2}
+        y={spot.y - h}
         width={w}
         height={h}
         style={{ imageRendering: "pixelated" }}
       />
       {mood === "asleep" && (
         <text
-          x={140 + w / 2}
-          y={232 - h}
-          fontSize="16"
+          x={spot.x + w / 2}
+          y={spot.y - h}
+          fontSize={Math.max(10, 16 * spot.scale)}
           fill={COLORS.offWhite}
           fontFamily="'Pixelify Sans', Georgia, serif"
         >
@@ -585,12 +589,32 @@ export default function TamagotchiApp() {
             />
           ) : away ? (
             <>
-              {/* out and about: a close-up of that spot on the map */}
+              {/* out and about: the place's own scene art, or a close-up
+                  of that spot on the map until it has some */}
               <svg viewBox="0 0 280 280" style={{ width: "100%", display: "block" }}>
-                <Postcard place={place} timeOfDay={timeOfDay} />
+                {place.scene ? (
+                  <image
+                    href={place.scene.images[timeOfDay]}
+                    x="0"
+                    y="0"
+                    width="280"
+                    height="280"
+                    style={{ imageRendering: "pixelated" }}
+                  />
+                ) : (
+                  <Postcard place={place} timeOfDay={timeOfDay} />
+                )}
                 {autumn && <AutumnLeaves timeOfDay={timeOfDay} outdoors />}
-                <ellipse cx="140" cy="231" rx={48 * stage.size} ry={7 * stage.size} fill="#000" opacity="0.3" />
-                <Creature mood={mood} stage={stage} bump={bump} />
+                {(() => {
+                  const spot = place.scene?.cat ?? HOME_SPOT;
+                  const s = stage.size * spot.scale;
+                  return (
+                    <>
+                      <ellipse cx={spot.x} cy={spot.y - 1} rx={48 * s} ry={7 * s} fill="#000" opacity="0.3" />
+                      <Creature mood={mood} stage={stage} bump={bump} spot={spot} />
+                    </>
+                  );
+                })()}
               </svg>
               <div className="place-label">{place.name}</div>
             </>

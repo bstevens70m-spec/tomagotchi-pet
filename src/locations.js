@@ -1,6 +1,17 @@
+import pizzaMorning from "./assets/places/pizza-lobo-morning.webp";
+import pizzaDay from "./assets/places/pizza-lobo-day.webp";
+import pizzaEvening from "./assets/places/pizza-lobo-evening.webp";
+import pizzaNight from "./assets/places/pizza-lobo-night.webp";
+
 // Places the cat can visit on the neighborhood map. Positions are in the
 // map image's own pixels (1890 x 832). Arriving somewhere applies its
 // effect to the cat's stats once.
+//
+// A place with `scene` has its own art, one image per time of day, shown
+// in the window while the cat visits. `cat` says where the cat stands in
+// it (window units, 280 x 280: center x and the y of its feet) and how big
+// it is relative to its size at home. Places without a scene show a
+// close-up of the map instead.
 export const MAP_SIZE = { w: 1890, h: 832 };
 
 export const LOCATIONS = [
@@ -21,6 +32,10 @@ export const LOCATIONS = [
     blurb: "The neighborhood's go-to pizza. Someone always drops a crust.",
     effect: { hunger: 25, joy: 6, energy: -4 },
     arrive: "At Pizza Lobo. The cat guards a fallen crust like treasure.",
+    scene: {
+      images: { morning: pizzaMorning, day: pizzaDay, evening: pizzaEvening, night: pizzaNight },
+      cat: { x: 140, y: 213, scale: 0.4 }, // on the sidewalk by the patio
+    },
   },
   {
     id: "native",
