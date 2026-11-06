@@ -34,7 +34,7 @@ export const LOCATIONS = [
     arrive: "At Pizza Lobo. The cat guards a fallen crust like treasure.",
     scene: {
       images: { morning: pizzaMorning, day: pizzaDay, evening: pizzaEvening, night: pizzaNight },
-      cat: { x: 140, y: 213, scale: 0.4 }, // on the sidewalk by the patio
+      cat: { x: 140, y: 252, scale: 0.6 }, // in the street, close to the viewer
     },
   },
   {
