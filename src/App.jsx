@@ -303,7 +303,7 @@ function getInitialState() {
     age: 0,
     asleep: false,
     mess: false,
-    log: "Your creature blinks awake for the first time.",
+    log: "Oxford blinks awake for the first time.",
     adoptedAt: Date.now(),
     location: "home",
   };
@@ -316,7 +316,7 @@ function getInitialState() {
   if (result.ticksPassed > 0 || result.elapsedMs >= 10 * 60 * 1000) {
     const away = formatDuration(result.elapsedMs);
     log = result.wokeUp
-      ? `Welcome back! You were away ${away} — your creature woke up partway through.`
+      ? `Welcome back! You were away ${away} — Oxford woke up partway through.`
       : `Welcome back! You were away ${away}.`;
   }
 
@@ -431,7 +431,7 @@ export default function TamagotchiApp() {
   useEffect(() => {
     if (asleep && stats.energy >= 100) {
       setAsleep(false);
-      setLog("Your creature wakes up refreshed.");
+      setLog("Oxford wakes up refreshed.");
     }
   }, [stats.energy, asleep]);
 
@@ -454,7 +454,7 @@ export default function TamagotchiApp() {
   function rest() {
     if (asleep || away) return;
     setAsleep(true);
-    setLog("Your creature curls up for a nap.");
+    setLog("Oxford curls up for a nap.");
   }
 
   // Called when the cat's marker finishes walking across the map.
@@ -501,7 +501,7 @@ export default function TamagotchiApp() {
     setAsleep(false);
     setMess(false);
     setCooldowns({ feed: 0, play: 0, clean: 0 });
-    setLog("A brand-new creature blinks awake for the first time.");
+    setLog("A brand-new Oxford blinks awake for the first time.");
     setConfirmReset(false);
   }
 
@@ -715,7 +715,7 @@ export default function TamagotchiApp() {
           }}
         >
           {confirmReset
-            ? "really start over? your creature will be gone — click again to confirm"
+            ? "really start over? Oxford goes back to day 1 — click again to confirm"
             : "start over"}
         </button>
       </div>

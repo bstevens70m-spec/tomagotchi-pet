@@ -34,16 +34,16 @@ export const LOCATIONS = [
     y: 327,
     blurb: "Your apartment. Rug, lamp, and a window full of sky.",
     effect: {},
-    arrive: "Back home. The cat flops onto the rug.",
+    arrive: "Back home. Oxford flops onto the rug.",
   },
   {
     id: "pizza",
     name: "Pizza Lobo",
     x: 76,
     y: 313,
-    blurb: "The neighborhood's go-to pizza. Someone always drops a crust.",
+    blurb: "The neighborhood's go-to pizza. Oxford knows exactly which tables drop crusts.",
     effect: { hunger: 25, joy: 6, energy: -4 },
-    arrive: "At Pizza Lobo. The cat guards a fallen crust like treasure.",
+    arrive: "Across from Pizza Lobo. Oxford tracks every slice that crosses the patio.",
     scene: {
       images: { morning: pizzaMorning, day: pizzaDay, evening: pizzaEvening, night: pizzaNight },
       cat: { x: 140, y: 252, scale: 0.6 }, // in the street, close to the viewer
@@ -54,9 +54,9 @@ export const LOCATIONS = [
     name: "The Native",
     x: 508,
     y: 280,
-    blurb: "Dive bar with a patio and a DJ. The cat is the real headliner.",
+    blurb: "Dive bar with a patio and a DJ. Oxford is the real headliner.",
     effect: { joy: 18, energy: -10 },
-    arrive: "Out on The Native's patio. The cat bobs its head to the DJ.",
+    arrive: "Posted up outside The Native. The bass is coming through the door.",
     scene: {
       images: { morning: nativeMorning, day: nativeDay, evening: nativeEvening, night: nativeNight },
       cat: { x: 112, y: 229, scale: 0.24 }, // on the sidewalk in front of the bar, about 2/3 door height
@@ -69,7 +69,7 @@ export const LOCATIONS = [
     y: 323,
     blurb: "Bright lights and late-night snacks. Open when nothing else is.",
     effect: { hunger: 15, joy: 5 },
-    arrive: "7-Eleven run! The cat stares down the hot dog roller.",
+    arrive: "7-Eleven run! Oxford waits by the door for someone to hold it.",
     scene: {
       images: { morning: sevenMorning, day: sevenDay, evening: sevenEvening, night: sevenNight },
       cat: { x: 168, y: 229, scale: 0.24 }, // on the sidewalk just right of the doors
@@ -80,9 +80,9 @@ export const LOCATIONS = [
     name: "Haas Park",
     x: 1710,
     y: 307,
-    blurb: "A whole soccer field built for zoomies. Goalkeeping optional.",
+    blurb: "Oxford's home pitch. He plays keeper, and nothing gets past him.",
     effect: { joy: 20, energy: -15, hunger: -8 },
-    arrive: "At Haas Park! The cat sprints the full length of the pitch.",
+    arrive: "Oxford takes his spot in goal. Clean sheet incoming.",
     scene: {
       images: { morning: haasMorning, day: haasDay, evening: haasEvening, night: haasNight },
       cat: { x: 102, y: 245, scale: 0.4 }, // out on the field, goals behind him
