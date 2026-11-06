@@ -2,6 +2,10 @@ import pizzaMorning from "./assets/places/pizza-lobo-morning.webp";
 import pizzaDay from "./assets/places/pizza-lobo-day.webp";
 import pizzaEvening from "./assets/places/pizza-lobo-evening.webp";
 import pizzaNight from "./assets/places/pizza-lobo-night.webp";
+import nativeMorning from "./assets/places/the-native-morning.webp";
+import nativeDay from "./assets/places/the-native-day.webp";
+import nativeEvening from "./assets/places/the-native-evening.webp";
+import nativeNight from "./assets/places/the-native-night.webp";
 
 // Places the cat can visit on the neighborhood map. Positions are in the
 // map image's own pixels (1890 x 832). Arriving somewhere applies its
@@ -45,6 +49,10 @@ export const LOCATIONS = [
     blurb: "Dive bar with a patio and a DJ. The cat is the real headliner.",
     effect: { joy: 18, energy: -10 },
     arrive: "Out on The Native's patio. The cat bobs its head to the DJ.",
+    scene: {
+      images: { morning: nativeMorning, day: nativeDay, evening: nativeEvening, night: nativeNight },
+      cat: { x: 200, y: 252, scale: 0.6 }, // in the bike lane, leaving the bar front in view
+    },
   },
   {
     id: "seven",
